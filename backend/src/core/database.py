@@ -14,44 +14,74 @@ from src.core.config import settings
 # Create SQLAlchemy base class
 Base = declarative_base()
 
-# Sync engine for migrations
-sync_engine = create_engine(
-    str(settings.database_url),
-    pool_size=settings.db_pool_size,
-    max_overflow=settings.db_max_overflow,
-    pool_timeout=settings.db_pool_timeout,
-    pool_recycle=3600,  # Recycle connections after 1 hour
-    pool_pre_ping=True,  # Verify connections before using
-    echo=settings.db_echo,
-)
+# Sync engine for migrations (created lazily to avoid import errors)
+_sync_engine: Any | None = None
+_sync_session_factory: sessionmaker[Session] | None = None
 
-# Sync session factory
-SyncSessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=sync_engine,
-)
 
-# Async engine for FastAPI
-async_database_url = str(settings.database_url).replace("postgresql://", "postgresql+asyncpg://")
-async_engine = create_async_engine(
-    async_database_url,
-    pool_size=settings.db_pool_size,
-    max_overflow=settings.db_max_overflow,
-    pool_timeout=settings.db_pool_timeout,
-    pool_recycle=3600,
-    pool_pre_ping=True,
-    echo=settings.db_echo,
-)
+def get_sync_engine() -> Any:
+    """Get or create sync engine."""
+    global _sync_engine
+    if _sync_engine is None:
+        _sync_engine = create_engine(
+            str(settings.database_url),
+            pool_size=settings.db_pool_size,
+            max_overflow=settings.db_max_overflow,
+            pool_timeout=settings.db_pool_timeout,
+            pool_recycle=3600,  # Recycle connections after 1 hour
+            pool_pre_ping=True,  # Verify connections before using
+            echo=settings.db_echo,
+        )
+    return _sync_engine
 
-# Async session factory
-AsyncSessionLocal = async_sessionmaker(
-    bind=async_engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autoflush=False,
-    autocommit=False,
-)
+
+def get_sync_session_factory() -> sessionmaker[Session]:
+    """Get or create sync session factory."""
+    global _sync_session_factory
+    if _sync_session_factory is None:
+        _sync_session_factory = sessionmaker(
+            autocommit=False,
+            autoflush=False,
+            bind=get_sync_engine(),
+        )
+    return _sync_session_factory
+
+# Async engine for FastAPI (created lazily to avoid import errors in migrations)
+_async_engine: Any | None = None
+_async_session_factory: async_sessionmaker[AsyncSession] | None = None
+
+
+def get_async_engine() -> Any:
+    """Get or create async engine."""
+    global _async_engine
+    if _async_engine is None:
+        async_database_url = str(settings.database_url).replace(
+            "postgresql://", "postgresql+asyncpg://"
+        )
+        _async_engine = create_async_engine(
+            async_database_url,
+            pool_size=settings.db_pool_size,
+            max_overflow=settings.db_max_overflow,
+            pool_timeout=settings.db_pool_timeout,
+            pool_recycle=3600,
+            pool_pre_ping=True,
+            echo=settings.db_echo,
+        )
+    return _async_engine
+
+
+def get_async_session_factory() -> async_sessionmaker[AsyncSession]:
+    """Get or create async session factory."""
+    global _async_session_factory
+    if _async_session_factory is None:
+        _async_session_factory = async_sessionmaker(
+            bind=get_async_engine(),
+            class_=AsyncSession,
+            expire_on_commit=False,
+            autoflush=False,
+            autocommit=False,
+        )
+    return _async_session_factory
 
 
 def get_sync_db() -> Session:
@@ -65,7 +95,8 @@ def get_sync_db() -> Session:
         with get_sync_db() as db:
             user = db.query(UserProfile).first()
     """
-    db = SyncSessionLocal()
+    session_factory = get_sync_session_factory()
+    db = session_factory()
     try:
         yield db
     finally:
@@ -85,7 +116,8 @@ async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
             result = await db.execute(select(UserProfile))
             return result.scalars().all()
     """
-    async with AsyncSessionLocal() as session:
+    session_factory = get_async_session_factory()
+    async with session_factory() as session:
         try:
             yield session
         finally:
@@ -104,7 +136,8 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
         async with get_db_context() as db:
             user = await db.get(UserProfile, user_id)
     """
-    async with AsyncSessionLocal() as session:
+    session_factory = get_async_session_factory()
+    async with session_factory() as session:
         yield session
 
 
@@ -114,7 +147,7 @@ def create_tables() -> None:
 
     Note: This is only used for testing. Production uses Alembic migrations.
     """
-    Base.metadata.create_all(bind=sync_engine)
+    Base.metadata.create_all(bind=get_sync_engine())
 
 
 def drop_tables() -> None:
@@ -123,4 +156,4 @@ def drop_tables() -> None:
 
     Note: This is only used for testing. Production uses Alembic migrations.
     """
-    Base.metadata.drop_all(bind=sync_engine)
+    Base.metadata.drop_all(bind=get_sync_engine())
