@@ -1,11 +1,18 @@
 """User-related models."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from sqlalchemy import CheckConstraint, String, Text
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import Base
 from src.models.base import TimestampMixin, UUIDMixin
+
+if TYPE_CHECKING:
+    from src.models.project import Project
+    from src.models.subscription import Subscription
 
 
 class UserProfile(Base, UUIDMixin, TimestampMixin):
@@ -36,13 +43,13 @@ class UserProfile(Base, UUIDMixin, TimestampMixin):
     )
 
     # Relationships
-    projects: Mapped[list["Project"]] = relationship(
+    projects: Mapped[list[Project]] = relationship(
         "Project",
         back_populates="user",
         cascade="all, delete-orphan",
     )
 
-    subscription: Mapped["Subscription | None"] = relationship(
+    subscription: Mapped[Subscription | None] = relationship(
         "Subscription",
         back_populates="user",
         uselist=False,

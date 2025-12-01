@@ -110,6 +110,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"src/models/*.py" = ["F821", "B018"]  # Allow forward references in models
 
 [tool.mypy]
 python_version = "3.11"

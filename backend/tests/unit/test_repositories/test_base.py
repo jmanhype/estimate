@@ -104,7 +104,7 @@ class TestBaseRepositoryGetMulti:
         repo = BaseRepository(UserProfile, test_session)
 
         # Create multiple users
-        for i in range(5):
+        for _i in range(5):
             await repo.create({"skill_level": "beginner"})
 
         users = await repo.get_multi()
@@ -117,7 +117,7 @@ class TestBaseRepositoryGetMulti:
         repo = BaseRepository(UserProfile, test_session)
 
         # Create 10 users
-        for i in range(10):
+        for _i in range(10):
             await repo.create({"skill_level": "beginner"})
 
         # Get first 5
@@ -275,7 +275,7 @@ class TestBaseRepositoryCount:
         repo = BaseRepository(UserProfile, test_session)
 
         # Create users
-        for i in range(7):
+        for _i in range(7):
             await repo.create({"skill_level": "beginner"})
 
         count = await repo.count()

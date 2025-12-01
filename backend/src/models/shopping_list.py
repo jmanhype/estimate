@@ -1,6 +1,11 @@
 """Shopping list models."""
 
 from decimal import Decimal
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    Project
+
 
 from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID

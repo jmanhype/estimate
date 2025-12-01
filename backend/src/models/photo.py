@@ -1,6 +1,11 @@
 """Project photo models."""
 
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    Project
+
 from decimal import Decimal
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, Numeric, String, Text
