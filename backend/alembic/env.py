@@ -21,10 +21,9 @@ from src.core.config import settings
 config.set_main_option("sqlalchemy.url", str(settings.database_url))
 
 # Import our Base and models
-from src.core.database import Base
-
 # Import all models to ensure they're registered with Base.metadata
 import src.models  # noqa: F401
+from src.core.database import Base
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
