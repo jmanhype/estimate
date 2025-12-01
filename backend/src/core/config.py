@@ -47,10 +47,15 @@ class Settings(BaseSettings):
     cors_origins: list[str] = Field(default=["http://localhost:3000", "http://localhost:5173"])
     cors_allow_credentials: bool = True
 
-    # Security
+    # Security / Supabase Authentication
     jwt_secret: str = Field(default="change-me-in-production")
     jwt_algorithm: str = "HS256"
     jwt_expiration_minutes: int = Field(default=60, ge=5, le=43200)
+
+    # Supabase settings (for JWT validation)
+    supabase_url: str = Field(default="")
+    supabase_anon_key: str = Field(default="")
+    supabase_jwt_secret: str = Field(default="")  # JWT secret from Supabase project settings
 
     # AWS S3 Storage
     aws_access_key_id: str = Field(default="")
