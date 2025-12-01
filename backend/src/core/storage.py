@@ -1,6 +1,5 @@
 """S3 storage client for file uploads and downloads."""
 
-from datetime import timedelta
 from typing import Any, BinaryIO
 
 import boto3
@@ -8,7 +7,6 @@ from botocore.client import Config
 from botocore.exceptions import ClientError, NoCredentialsError
 
 from src.core.config import settings
-
 
 # S3 client (created lazily)
 _s3_client: Any = None

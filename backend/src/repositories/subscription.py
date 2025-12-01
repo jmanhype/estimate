@@ -193,7 +193,7 @@ class SubscriptionRepository(BaseRepository[Subscription]):
         """
         query = (
             select(Subscription)
-            .where(Subscription.cancel_at_period_end == True)
+            .where(Subscription.cancel_at_period_end)
             .offset(skip)
             .limit(limit)
         )

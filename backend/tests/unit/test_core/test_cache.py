@@ -1,7 +1,7 @@
 """Tests for Redis cache client."""
 
 import json
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock
 
 import pytest
 from redis.asyncio import Redis

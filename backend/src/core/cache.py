@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from redis.asyncio import Redis, from_url
+from redis.asyncio import Redis
 from redis.asyncio.connection import ConnectionPool
 
 from src.core.config import settings

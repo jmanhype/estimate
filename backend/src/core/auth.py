@@ -1,6 +1,6 @@
 """Authentication and authorization utilities for Supabase JWT validation."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated, Any
 
 import jwt
@@ -79,17 +79,17 @@ def decode_jwt(token: str) -> TokenPayload:
         if exp is None:
             raise AuthenticationError("Token missing expiration")
 
-        if datetime.fromtimestamp(exp, tz=timezone.utc) < datetime.now(tz=timezone.utc):
+        if datetime.fromtimestamp(exp, tz=UTC) < datetime.now(tz=UTC):
             raise AuthenticationError("Token has expired")
 
         return TokenPayload(**payload)
 
-    except jwt.ExpiredSignatureError:
-        raise AuthenticationError("Token has expired")
+    except jwt.ExpiredSignatureError as e:
+        raise AuthenticationError("Token has expired") from e
     except jwt.InvalidTokenError as e:
-        raise AuthenticationError(f"Invalid token: {e!s}")
+        raise AuthenticationError(f"Invalid token: {e!s}") from e
     except ValueError as e:
-        raise AuthenticationError(f"Invalid token payload: {e!s}")
+        raise AuthenticationError(f"Invalid token payload: {e!s}") from e
 
 
 async def get_current_user(

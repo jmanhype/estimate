@@ -1,6 +1,6 @@
 """Tests for SubscriptionRepository."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
@@ -39,7 +39,7 @@ class TestSubscriptionRepository:
         sample_user: UserProfile,
     ) -> Subscription:
         """Create a sample subscription for testing."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         return await subscription_repo.create({
             "user_id": sample_user.id,
             "stripe_subscription_id": "sub_test123",
@@ -132,7 +132,7 @@ class TestSubscriptionRepository:
         """Test getting subscriptions by tier."""
         # Create additional users and subscriptions
         user2 = await user_repo.create({"skill_level": "beginner"})
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         await subscription_repo.create({
             "user_id": user2.id,
             "stripe_customer_id": "cus_test456",
@@ -153,7 +153,7 @@ class TestSubscriptionRepository:
     ) -> None:
         """Test getting subscriptions by tier with pagination."""
         # Create multiple users and subscriptions
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         for i in range(5):
             user = await user_repo.create({"skill_level": "beginner"})
             await subscription_repo.create({
@@ -187,7 +187,7 @@ class TestSubscriptionRepository:
         """Test getting all active subscriptions."""
         # Create a canceled subscription
         user2 = await user_repo.create({"skill_level": "expert"})
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         await subscription_repo.create({
             "user_id": user2.id,
             "stripe_customer_id": "cus_test789",
@@ -207,7 +207,7 @@ class TestSubscriptionRepository:
         user_repo: UserRepository,
     ) -> None:
         """Test getting subscriptions expiring soon."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         expiring_date = now + timedelta(days=5)
 
         # Create subscription expiring in 5 days
@@ -246,7 +246,7 @@ class TestSubscriptionRepository:
         user_repo: UserRepository,
     ) -> None:
         """Test getting subscriptions set to cancel at period end."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Create subscription canceling at period end
         user1 = await user_repo.create({"skill_level": "beginner"})
@@ -284,7 +284,7 @@ class TestSubscriptionRepository:
     ) -> None:
         """Test counting subscriptions by tier."""
         # Create additional subscriptions
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         for i in range(2):
             user = await user_repo.create({"skill_level": "beginner"})
             await subscription_repo.create({

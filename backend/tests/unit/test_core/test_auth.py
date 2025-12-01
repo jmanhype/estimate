@@ -1,11 +1,9 @@
 """Tests for authentication and authorization utilities."""
 
-from datetime import datetime, timedelta, timezone
-from unittest.mock import MagicMock
+from datetime import UTC, datetime, timedelta
 
 import jwt
 import pytest
-from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 
 from src.core.auth import (
@@ -27,8 +25,8 @@ class TestTokenPayload:
         """Test TokenPayload with minimal required fields."""
         payload = TokenPayload(
             sub="123e4567-e89b-12d3-a456-426614174000",
-            exp=int(datetime.now(tz=timezone.utc).timestamp()) + 3600,
-            iat=int(datetime.now(tz=timezone.utc).timestamp()),
+            exp=int(datetime.now(tz=UTC).timestamp()) + 3600,
+            iat=int(datetime.now(tz=UTC).timestamp()),
         )
 
         assert payload.sub == "123e4567-e89b-12d3-a456-426614174000"
@@ -39,7 +37,7 @@ class TestTokenPayload:
 
     def test_token_payload_full(self):
         """Test TokenPayload with all fields."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         payload = TokenPayload(
             sub="123e4567-e89b-12d3-a456-426614174000",
             email="user@example.com",
@@ -64,7 +62,7 @@ class TestDecodeJWT:
 
     def test_decode_valid_token(self):
         """Test decoding a valid JWT token."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         exp = now + timedelta(hours=1)
         payload_data = {
             "sub": "123e4567-e89b-12d3-a456-426614174000",
@@ -87,7 +85,7 @@ class TestDecodeJWT:
 
     def test_decode_expired_token(self):
         """Test decoding an expired token raises error."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         exp = now - timedelta(hours=1)  # Expired 1 hour ago
         payload_data = {
             "sub": "123e4567-e89b-12d3-a456-426614174000",
@@ -107,7 +105,7 @@ class TestDecodeJWT:
 
     def test_decode_invalid_signature(self):
         """Test decoding a token with invalid signature raises error."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         payload_data = {
             "sub": "123e4567-e89b-12d3-a456-426614174000",
             "aud": "authenticated",
@@ -148,7 +146,7 @@ class TestDecodeJWT:
 
     def test_decode_token_wrong_audience(self):
         """Test decoding a token with wrong audience raises error."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         payload_data = {
             "sub": "123e4567-e89b-12d3-a456-426614174000",
             "aud": "wrong-audience",  # Wrong audience
@@ -170,7 +168,7 @@ class TestGetCurrentUser:
     @pytest.mark.asyncio
     async def test_get_current_user_valid_token(self):
         """Test getting current user with valid token."""
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         payload_data = {
             "sub": "123e4567-e89b-12d3-a456-426614174000",
             "email": "user@example.com",
@@ -206,8 +204,8 @@ class TestRequireAuthenticated:
         user = TokenPayload(
             sub="123e4567-e89b-12d3-a456-426614174000",
             email="user@example.com",
-            exp=int((datetime.now(tz=timezone.utc) + timedelta(hours=1)).timestamp()),
-            iat=int(datetime.now(tz=timezone.utc).timestamp()),
+            exp=int((datetime.now(tz=UTC) + timedelta(hours=1)).timestamp()),
+            iat=int(datetime.now(tz=UTC).timestamp()),
         )
 
         result = await require_authenticated(user)
@@ -223,8 +221,8 @@ class TestRequireSubscriptionTier:
         """Test tier check passes for allowed tier (free)."""
         user = TokenPayload(
             sub="123e4567-e89b-12d3-a456-426614174000",
-            exp=int((datetime.now(tz=timezone.utc) + timedelta(hours=1)).timestamp()),
-            iat=int(datetime.now(tz=timezone.utc).timestamp()),
+            exp=int((datetime.now(tz=UTC) + timedelta(hours=1)).timestamp()),
+            iat=int(datetime.now(tz=UTC).timestamp()),
             app_metadata={"subscription_tier": "free"},
         )
 
@@ -238,8 +236,8 @@ class TestRequireSubscriptionTier:
         """Test tier check passes for allowed tier (pro)."""
         user = TokenPayload(
             sub="123e4567-e89b-12d3-a456-426614174000",
-            exp=int((datetime.now(tz=timezone.utc) + timedelta(hours=1)).timestamp()),
-            iat=int(datetime.now(tz=timezone.utc).timestamp()),
+            exp=int((datetime.now(tz=UTC) + timedelta(hours=1)).timestamp()),
+            iat=int(datetime.now(tz=UTC).timestamp()),
             app_metadata={"subscription_tier": "pro"},
         )
 
@@ -253,8 +251,8 @@ class TestRequireSubscriptionTier:
         """Test tier check raises error for disallowed tier."""
         user = TokenPayload(
             sub="123e4567-e89b-12d3-a456-426614174000",
-            exp=int((datetime.now(tz=timezone.utc) + timedelta(hours=1)).timestamp()),
-            iat=int(datetime.now(tz=timezone.utc).timestamp()),
+            exp=int((datetime.now(tz=UTC) + timedelta(hours=1)).timestamp()),
+            iat=int(datetime.now(tz=UTC).timestamp()),
             app_metadata={"subscription_tier": "free"},
         )
 
@@ -272,8 +270,8 @@ class TestRequireSubscriptionTier:
         """Test tier check defaults to 'free' when subscription_tier missing."""
         user = TokenPayload(
             sub="123e4567-e89b-12d3-a456-426614174000",
-            exp=int((datetime.now(tz=timezone.utc) + timedelta(hours=1)).timestamp()),
-            iat=int(datetime.now(tz=timezone.utc).timestamp()),
+            exp=int((datetime.now(tz=UTC) + timedelta(hours=1)).timestamp()),
+            iat=int(datetime.now(tz=UTC).timestamp()),
             app_metadata={},  # No subscription_tier
         )
 
@@ -287,8 +285,8 @@ class TestRequireSubscriptionTier:
         """Test tier check with multiple allowed tiers."""
         user = TokenPayload(
             sub="123e4567-e89b-12d3-a456-426614174000",
-            exp=int((datetime.now(tz=timezone.utc) + timedelta(hours=1)).timestamp()),
-            iat=int(datetime.now(tz=timezone.utc).timestamp()),
+            exp=int((datetime.now(tz=UTC) + timedelta(hours=1)).timestamp()),
+            iat=int(datetime.now(tz=UTC).timestamp()),
             app_metadata={"subscription_tier": "enterprise"},
         )
 
