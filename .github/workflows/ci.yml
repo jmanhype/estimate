@@ -181,7 +181,7 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: ./backend
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --no-root
 
       - name: Run database migrations
         if: hashFiles('backend/alembic/versions/*.py') != ''
