@@ -224,3 +224,4 @@ Once Phase 1 is fully verified (GitHub Actions passing), proceed with:
 ---
 
 Built with [Claude Code](https://claude.com/claude-code) using [Spec Kit](https://github.com/jmanhype/speckit)
+
