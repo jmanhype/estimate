@@ -1,6 +1,6 @@
 """Comprehensive tests for UserProfile model."""
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 import pytest
@@ -75,7 +75,7 @@ class TestUserProfileModel:
         self, test_session
     ) -> None:
         """UserProfile should auto-generate timestamps."""
-        before_create = datetime.now(UTC)
+        before_create = datetime.now(timezone.utc)
 
         user = UserProfile(
             skill_level="beginner",
@@ -85,7 +85,7 @@ class TestUserProfileModel:
         await test_session.commit()
         await test_session.refresh(user)
 
-        after_create = datetime.now(UTC)
+        after_create = datetime.now(timezone.utc)
 
         assert before_create <= user.created_at <= after_create
         assert before_create <= user.updated_at <= after_create
