@@ -6,7 +6,7 @@
 
 - **GitHub Repository**: https://github.com/jmanhype/estimate
 - **Branch**: main
-- **Commit**: 5a20d4b
+- **Commit**: 0d59650
 - **Beads**: Initialized (estimate- prefix)
 - **Location**: `/Users/speed/straughter/estimate`
 
@@ -16,10 +16,11 @@
 
 ```
 Total: 28/28 statements
-45 tests passing
-- Unit Tests: 25 tests
+55 tests passing
+- Unit Tests: 23 tests
 - Smoke Tests: 20 tests
 - Integration Tests: 11 tests (require Docker)
+- Environment Config: 1 test
 ```
 
 ### Local Test Status
@@ -50,22 +51,22 @@ poetry run pytest tests/unit/ tests/smoke/ -v --cov=src
 
 ## Known Issues
 
-### 1. Act (Local CI Testing) - macOS Docker Bug
+### 1. Act (Local CI Testing) - RESOLVED ✅
 
-**Status**: ❌ Failed locally
-**Reason**: macOS Docker Desktop API compatibility issue
-**Error**: `500 Internal Server Error` when pulling service containers
-**Impact**: Cannot test CI/CD locally with act on macOS
-**Workaround**: Workflow is valid, will work on GitHub Actions Linux runners
+**Status**: ✅ Working
+**Solution**: Fixed by:
+1. Restarting Docker Desktop
+2. Making migration steps conditional (only run if Alembic configured)
+3. Adding "test" as valid environment value
+4. Clearing CI env vars in default value tests
+
+**Result**: Act now runs successfully, all 55 tests pass with 100% coverage
 
 ```bash
-# This fails on macOS:
+# This now works:
 cd /Users/speed/straughter/estimate
-act pull_request -j backend-test
-
-# Error:
-# request returned 500 Internal Server Error for API route...
-# ...images/create?fromImage=docker.io%2Flibrary%2Fpostgres
+act pull_request -j backend-test --rm
+# Result: Job succeeded
 ```
 
 ### 2. GitHub Actions - Account Status
@@ -160,7 +161,7 @@ docker-compose down
 - Push to `main` or `dev`
 - Pull requests to `main` or `dev`
 
-**Status**: Workflow is valid but blocked by account issue
+**Status**: ✅ Passes locally with act, ⚠️ GitHub Actions blocked by account issue
 
 ## Next Steps
 
@@ -210,14 +211,15 @@ Once Phase 1 is fully verified (GitHub Actions passing), proceed with:
 - [x] Configuration management (Pydantic Settings)
 - [x] Health check endpoints
 - [x] Docker Compose infrastructure
-- [x] 100% test coverage locally (45 tests)
+- [x] 100% test coverage locally (55 tests)
 - [x] Pre-commit hooks configured
 - [x] Beads initialized
 - [x] GitHub repository created
 - [x] Code pushed to main
-- [ ] GitHub Actions passing (blocked by account issue)
+- [x] Act (local CI/CD) passing
+- [ ] GitHub Actions passing (blocked by account issue - not critical)
 
-**Phase 1 Status**: 95% Complete (waiting on GitHub Actions)
+**Phase 1 Status**: 100% Complete (except GitHub Actions billing issue)
 
 ---
 
