@@ -12,25 +12,26 @@
 
 ## CI/CD Status ✅
 
-**Latest Run**: [#19813074987](https://github.com/jmanhype/estimate/actions/runs/19813074987) - All core jobs passing
+**Latest Run**: [#19813688641](https://github.com/jmanhype/estimate/actions/runs/19813688641) - All jobs passing
 
 | Job | Status | Duration |
 |-----|--------|----------|
-| Backend Tests | ✅ Success | ~2m |
-| Security Scan | ✅ Success | ~15s |
-| Frontend Tests | ✅ Success | ~35s |
+| Backend Tests | ✅ Success | 1m1s |
+| Frontend Tests | ✅ Success | 25s |
+| Security Scan | ✅ Success | 15s |
+| E2E Tests | ✅ Success | 1m17s |
 
 ## Phase 1: Project Foundation - COMPLETE ✅
 
 ### Test Coverage: 100%
 
 ```
-Total: 28/28 statements
-55 tests passing
-- Unit Tests: 23 tests
-- Smoke Tests: 20 tests
-- Integration Tests: 11 tests (require Docker)
-- Environment Config: 1 test
+Total: 41/41 statements
+48 unit/smoke tests + 2 E2E tests = 50 tests passing
+- Unit Tests: 26 tests (config: 23, health: 2, main: 3)
+- Smoke Tests: 22 tests (20 project setup, 2 main tests added to existing file)
+- E2E Tests: 2 tests (backend health check endpoints)
+- Integration Tests: 11 tests (require Docker, not run in CI by default)
 ```
 
 ### Local Test Status
@@ -39,20 +40,34 @@ Total: 28/28 statements
 ```bash
 cd backend
 poetry run pytest tests/unit/ tests/smoke/ -v --cov=src
-# Result: 45 passed, 100% coverage
+# Result: 48 passed, 100% coverage (41/41 statements)
+
+cd frontend
+npm run test:coverage
+# Result: 1 passed
+
+npm run test:e2e
+# Result: 2 passed (requires backend running)
 ```
 
 ### Files Created
 
 **Backend**:
-- `src/core/config.py` - Pydantic Settings (26 statements, 100% coverage)
+- `src/core/config.py` - Pydantic Settings (27 statements, 100% coverage)
 - `src/core/health.py` - Health check (2 statements, 100% coverage)
+- `src/main.py` - FastAPI application entry point (12 statements, 100% coverage)
 
 **Tests**:
 - `tests/unit/test_core/test_config.py` - 23 comprehensive tests
 - `tests/unit/test_core/test_health.py` - 2 health check tests
+- `tests/unit/test_main.py` - 3 tests for FastAPI app
 - `tests/integration/test_docker_services.py` - 11 Docker service tests
 - `tests/smoke/test_project_setup.py` - 20 project validation tests
+
+**Frontend**:
+- `src/App.test.tsx` - 1 smoke test for React app
+- `tests/e2e/health.spec.ts` - 2 Playwright E2E tests
+- `playwright.config.ts` - Playwright configuration
 
 **Infrastructure**:
 - `docker-compose.yml` - PostgreSQL 15 + Redis 7
@@ -79,22 +94,26 @@ act pull_request -j backend-test --rm
 # Result: Job succeeded
 ```
 
-### 2. GitHub Actions - RESOLVED ✅
+### 2. All CI/CD Jobs - RESOLVED ✅
 
 **Status**: ✅ All jobs passing
-**Latest Run**: 19813074987 (2025-12-01)
+**Latest Run**: [19813688641](https://github.com/jmanhype/estimate/actions/runs/19813688641) (2025-12-01)
 **Jobs**:
-- ✅ Backend Tests (success)
-- ✅ Security Scan (success)
-- ✅ Frontend Tests (success)
+- ✅ Backend Tests (1m1s)
+- ✅ Frontend Tests (25s)
+- ✅ Security Scan (15s)
+- ✅ E2E Tests (1m17s)
 
 **Fixes Applied**:
-1. Added missing frontend dependencies (jsdom, @vitest/coverage-v8, @tailwindcss/postcss)
-2. Upgraded Node.js from 18 to 20 (engine requirements)
-3. Fixed Tailwind CSS v4 PostCSS configuration
-4. Fixed vite.config.ts to support test configuration
-5. Excluded test files from TypeScript production build
-6. Added security-events: write permission to security-scan job
+1. **Frontend Dependencies**: Added jsdom, @vitest/coverage-v8, @tailwindcss/postcss
+2. **Node.js Upgrade**: 18 → 20 for engine compatibility
+3. **Tailwind CSS v4**: Fixed PostCSS configuration
+4. **Vitest Config**: Support for test configuration, exclude E2E tests
+5. **TypeScript Build**: Excluded test files from production build
+6. **Security Scan**: Added security-events:write permission
+7. **FastAPI App**: Created src/main.py with /health and / endpoints
+8. **E2E Tests**: Added Playwright tests for backend health check
+9. **Poetry Install**: Added --no-root flag to e2e-test job
 
 ## Project Structure
 
@@ -216,19 +235,21 @@ docker-compose down
 
 - [x] Backend project structure
 - [x] Configuration management (Pydantic Settings)
-- [x] Health check endpoints
+- [x] FastAPI application entry point (src/main.py)
+- [x] Health check endpoints (/health, /)
 - [x] Docker Compose infrastructure
-- [x] 100% test coverage locally (55 tests)
+- [x] 100% test coverage (48 unit/smoke tests, 41/41 statements)
+- [x] Frontend test infrastructure (Vitest, jsdom, coverage)
+- [x] E2E test infrastructure (Playwright, 2 tests)
 - [x] Pre-commit hooks configured
 - [x] Beads initialized
 - [x] GitHub repository created
 - [x] Code pushed to main
 - [x] Act (local CI/CD) passing
-- [x] GitHub Actions passing (all core jobs green)
-- [x] Frontend test infrastructure (Vitest, jsdom, coverage)
+- [x] GitHub Actions passing (all 4 core jobs green)
 - [x] Security scanning (Trivy, Bandit)
 
-**Phase 1 Status**: ✅ 100% Complete - All CI/CD jobs passing
+**Phase 1 Status**: ✅ 100% Complete - All CI/CD jobs passing (Backend, Frontend, Security, E2E)
 
 ---
 
