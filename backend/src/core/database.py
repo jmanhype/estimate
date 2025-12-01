@@ -84,7 +84,7 @@ def get_async_session_factory() -> async_sessionmaker[AsyncSession]:
     return _async_session_factory
 
 
-def get_sync_db() -> Session:
+def get_sync_db() -> AsyncGenerator[Session, None]:  # type: ignore[misc]
     """
     Get synchronous database session for migrations and scripts.
 

@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    UserProfile
+    from src.models.user import UserProfile
 
 
 from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, String, Text

@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    Project
+    from src.models.project import Project
 
 from decimal import Decimal
 

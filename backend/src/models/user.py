@@ -43,13 +43,13 @@ class UserProfile(Base, UUIDMixin, TimestampMixin):
     )
 
     # Relationships
-    projects: Mapped[list[Project]] = relationship(
+    projects: Mapped[list["Project"]] = relationship(
         "Project",
         back_populates="user",
         cascade="all, delete-orphan",
     )
 
-    subscription: Mapped[Subscription | None] = relationship(
+    subscription: Mapped["Subscription | None"] = relationship(
         "Subscription",
         back_populates="user",
         uselist=False,

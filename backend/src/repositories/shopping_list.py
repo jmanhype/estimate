@@ -69,7 +69,7 @@ class ShoppingListRepository(BaseRepository[ShoppingList]):
             for item in shopping_list.items
         )
 
-        shopping_list.total_estimated_cost = total
+        shopping_list.total_estimated_cost = total  # type: ignore[assignment]
         await self.db.commit()
         await self.db.refresh(shopping_list)
         return shopping_list

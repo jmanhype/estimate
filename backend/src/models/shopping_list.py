@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    Project
+    from src.models.project import Project
 
 
 from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text

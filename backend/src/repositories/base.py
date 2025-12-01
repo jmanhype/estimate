@@ -92,7 +92,7 @@ class BaseRepository(Generic[ModelType]):
         self.db.add(db_obj)
         await self.db.commit()
         await self.db.refresh(db_obj)
-        return db_obj
+        return db_obj  # type: ignore[no-any-return]
 
     async def update(
         self,

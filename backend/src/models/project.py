@@ -4,9 +4,9 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    UserProfile
-    ProjectPhoto
-    ShoppingList
+    from src.models.photo import ProjectPhoto
+    from src.models.shopping_list import ShoppingList
+    from src.models.user import UserProfile
 
 
 from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text
