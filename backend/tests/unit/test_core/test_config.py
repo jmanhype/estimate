@@ -9,8 +9,15 @@ from src.core.config import Settings, get_settings
 class TestSettingsDefaults:
     """Test Settings class with default values."""
 
-    def test_settings_initialization_with_defaults(self) -> None:
+    def test_settings_initialization_with_defaults(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         """Settings should initialize with correct default values."""
+        # Clear any environment variables set by CI
+        monkeypatch.delenv("ENVIRONMENT", raising=False)
+        monkeypatch.delenv("DATABASE_URL", raising=False)
+        monkeypatch.delenv("REDIS_URL", raising=False)
+
         settings = Settings()
 
         # Environment defaults

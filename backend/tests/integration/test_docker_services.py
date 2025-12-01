@@ -156,7 +156,7 @@ class TestEnvironmentConfiguration:
 
         # Should successfully load settings without errors
         assert settings is not None
-        assert settings.environment in ["development", "staging", "production"]
+        assert settings.environment in ["development", "staging", "production", "test"]
         assert settings.log_level in ["DEBUG", "INFO", "WARNING", "ERROR"]
 
     def test_database_url_is_valid_postgres_dsn(self) -> None:

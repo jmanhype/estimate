@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     )
 
     # Environment
-    environment: Literal["development", "staging", "production"] = "development"
+    environment: Literal["development", "staging", "production", "test"] = "development"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     # Database

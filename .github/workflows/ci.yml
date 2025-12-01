@@ -67,6 +67,7 @@ jobs:
         run: poetry install --no-interaction --no-root
 
       - name: Run database migrations
+        if: hashFiles('backend/alembic/versions/*.py') != ''
         working-directory: ./backend
         env:
           DATABASE_URL: postgresql://estimate:estimate@localhost:5432/estimate_test
@@ -183,6 +184,7 @@ jobs:
         run: poetry install --no-interaction
 
       - name: Run database migrations
+        if: hashFiles('backend/alembic/versions/*.py') != ''
         working-directory: ./backend
         env:
           DATABASE_URL: postgresql://estimate:estimate@localhost:5432/estimate_test
