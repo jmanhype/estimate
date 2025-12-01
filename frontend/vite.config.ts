@@ -34,5 +34,10 @@ export default defineConfig({
         '**/*.spec.{ts,tsx}',
       ],
     },
+    env: {
+      VITE_SUPABASE_URL: 'https://test.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'test-anon-key',
+      VITE_API_BASE_URL: 'http://localhost:8000/api/v1',
+    },
   },
 })

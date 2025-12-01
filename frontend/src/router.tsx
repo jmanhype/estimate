@@ -4,6 +4,7 @@
 
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { HomePage, ProjectsPage, LoginPage, NotFoundPage } from './pages';
+import { ProtectedRoute } from './components/common/ProtectedRoute';
 
 /**
  * Application router with all route definitions
@@ -19,31 +20,59 @@ export const router = createBrowserRouter([
   },
   {
     path: '/projects',
-    element: <ProjectsPage />,
+    element: (
+      <ProtectedRoute>
+        <ProjectsPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/projects/new',
-    element: <div>New Project Page (TODO)</div>,
+    element: (
+      <ProtectedRoute>
+        <div>New Project Page (TODO)</div>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/projects/:id',
-    element: <div>Project Detail Page (TODO)</div>,
+    element: (
+      <ProtectedRoute>
+        <div>Project Detail Page (TODO)</div>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/projects/:id/estimate',
-    element: <div>Estimate Page (TODO)</div>,
+    element: (
+      <ProtectedRoute>
+        <div>Estimate Page (TODO)</div>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/projects/:id/shopping-list',
-    element: <div>Shopping List Page (TODO)</div>,
+    element: (
+      <ProtectedRoute>
+        <div>Shopping List Page (TODO)</div>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/subscription',
-    element: <div>Subscription Page (TODO)</div>,
+    element: (
+      <ProtectedRoute>
+        <div>Subscription Page (TODO)</div>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/profile',
-    element: <div>Profile Page (TODO)</div>,
+    element: (
+      <ProtectedRoute>
+        <div>Profile Page (TODO)</div>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/404',
