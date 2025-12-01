@@ -52,6 +52,13 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expiration_minutes: int = Field(default=60, ge=5, le=43200)
 
+    # AWS S3 Storage
+    aws_access_key_id: str = Field(default="")
+    aws_secret_access_key: str = Field(default="")
+    aws_region: str = Field(default="us-east-1")
+    s3_bucket_name: str = Field(default="estimate-uploads")
+    s3_presigned_url_expiration: int = Field(default=3600, ge=60, le=86400)  # 1 hour default, max 24 hours
+
 
 @lru_cache
 def get_settings() -> Settings:
