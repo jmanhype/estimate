@@ -4,6 +4,8 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from src.models.feedback import ProjectFeedback
+    from src.models.phase import ProjectPhase
     from src.models.photo import ProjectPhoto
     from src.models.shopping_list import ShoppingList
     from src.models.user import UserProfile
@@ -90,6 +92,19 @@ class Project(Base, UUIDMixin, TimestampMixin):
         "ShoppingList",
         back_populates="project",
         uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+    phases: Mapped[list["ProjectPhase"]] = relationship(
+        "ProjectPhase",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        order_by="ProjectPhase.phase_order",
+    )
+
+    feedback: Mapped[list["ProjectFeedback"]] = relationship(
+        "ProjectFeedback",
+        back_populates="project",
         cascade="all, delete-orphan",
     )
 

@@ -1,6 +1,8 @@
 """Database models."""
 
 from src.models.base import TimestampMixin, UUIDMixin
+from src.models.feedback import ProjectFeedback
+from src.models.phase import ProjectPhase
 from src.models.photo import ProjectPhoto
 from src.models.project import Project
 from src.models.retailer import RetailerPrice
@@ -15,6 +17,8 @@ __all__ = [
     "Subscription",
     "Project",
     "ProjectPhoto",
+    "ProjectPhase",
+    "ProjectFeedback",
     "ShoppingList",
     "ShoppingListItem",
     "RetailerPrice",

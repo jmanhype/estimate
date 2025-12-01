@@ -11,6 +11,7 @@ from src.core.database import Base
 from src.models.base import TimestampMixin, UUIDMixin
 
 if TYPE_CHECKING:
+    from src.models.feedback import ProjectFeedback
     from src.models.project import Project
     from src.models.subscription import Subscription
 
@@ -53,6 +54,12 @@ class UserProfile(Base, UUIDMixin, TimestampMixin):
         "Subscription",
         back_populates="user",
         uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+    feedback: Mapped[list["ProjectFeedback"]] = relationship(
+        "ProjectFeedback",
+        back_populates="user",
         cascade="all, delete-orphan",
     )
 
