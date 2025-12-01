@@ -11,9 +11,9 @@ class TestUserRepository:
     """Tests for UserRepository methods."""
 
     @pytest.fixture
-    async def user_repo(self, test_db: AsyncSession) -> UserRepository:
+    async def user_repo(self, test_session: AsyncSession) -> UserRepository:
         """Create UserRepository instance."""
-        return UserRepository(test_db)
+        return UserRepository(test_session)
 
     @pytest.fixture
     async def sample_user(self, user_repo: UserRepository) -> UserProfile:

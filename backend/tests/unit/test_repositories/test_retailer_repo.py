@@ -14,9 +14,9 @@ class TestRetailerPriceRepository:
     """Tests for RetailerPriceRepository methods."""
 
     @pytest.fixture
-    async def retailer_repo(self, test_db: AsyncSession) -> RetailerPriceRepository:
+    async def retailer_repo(self, test_session: AsyncSession) -> RetailerPriceRepository:
         """Create RetailerPriceRepository instance."""
-        return RetailerPriceRepository(test_db)
+        return RetailerPriceRepository(test_session)
 
     @pytest.fixture
     async def sample_prices(

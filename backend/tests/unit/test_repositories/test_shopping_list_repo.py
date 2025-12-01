@@ -20,28 +20,28 @@ class TestShoppingListRepository:
     """Tests for ShoppingListRepository methods."""
 
     @pytest.fixture
-    async def user_repo(self, test_db: AsyncSession) -> UserRepository:
+    async def user_repo(self, test_session: AsyncSession) -> UserRepository:
         """Create UserRepository instance."""
-        return UserRepository(test_db)
+        return UserRepository(test_session)
 
     @pytest.fixture
-    async def project_repo(self, test_db: AsyncSession) -> ProjectRepository:
+    async def project_repo(self, test_session: AsyncSession) -> ProjectRepository:
         """Create ProjectRepository instance."""
-        return ProjectRepository(test_db)
+        return ProjectRepository(test_session)
 
     @pytest.fixture
     async def shopping_list_repo(
-        self, test_db: AsyncSession
+        self, test_session: AsyncSession
     ) -> ShoppingListRepository:
         """Create ShoppingListRepository instance."""
-        return ShoppingListRepository(test_db)
+        return ShoppingListRepository(test_session)
 
     @pytest.fixture
     async def shopping_list_item_repo(
-        self, test_db: AsyncSession
+        self, test_session: AsyncSession
     ) -> ShoppingListItemRepository:
         """Create ShoppingListItemRepository instance."""
-        return ShoppingListItemRepository(test_db)
+        return ShoppingListItemRepository(test_session)
 
     @pytest.fixture
     async def sample_user(self, user_repo: UserRepository) -> UserProfile:
@@ -225,28 +225,28 @@ class TestShoppingListItemRepository:
     """Tests for ShoppingListItemRepository methods."""
 
     @pytest.fixture
-    async def user_repo(self, test_db: AsyncSession) -> UserRepository:
+    async def user_repo(self, test_session: AsyncSession) -> UserRepository:
         """Create UserRepository instance."""
-        return UserRepository(test_db)
+        return UserRepository(test_session)
 
     @pytest.fixture
-    async def project_repo(self, test_db: AsyncSession) -> ProjectRepository:
+    async def project_repo(self, test_session: AsyncSession) -> ProjectRepository:
         """Create ProjectRepository instance."""
-        return ProjectRepository(test_db)
+        return ProjectRepository(test_session)
 
     @pytest.fixture
     async def shopping_list_repo(
-        self, test_db: AsyncSession
+        self, test_session: AsyncSession
     ) -> ShoppingListRepository:
         """Create ShoppingListRepository instance."""
-        return ShoppingListRepository(test_db)
+        return ShoppingListRepository(test_session)
 
     @pytest.fixture
     async def shopping_list_item_repo(
-        self, test_db: AsyncSession
+        self, test_session: AsyncSession
     ) -> ShoppingListItemRepository:
         """Create ShoppingListItemRepository instance."""
-        return ShoppingListItemRepository(test_db)
+        return ShoppingListItemRepository(test_session)
 
     @pytest.fixture
     async def sample_user(self, user_repo: UserRepository) -> UserProfile:
