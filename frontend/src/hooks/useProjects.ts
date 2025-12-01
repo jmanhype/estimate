@@ -4,7 +4,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../lib/queryClient';
-import { projectsApi, type Project, type CreateProjectInput, type UpdateProjectInput } from '../services';
+import { projectsApi, type CreateProjectInput, type UpdateProjectInput } from '../services';
 
 /**
  * Fetch all projects for the current user
@@ -50,15 +50,15 @@ export function useCreateProject() {
 /**
  * Update an existing project
  */
-export function useUpdateProject(id: string) {
+export function useUpdateProject(projectId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: UpdateProjectInput) => projectsApi.update(id, input),
+    mutationFn: (input: UpdateProjectInput) => projectsApi.update(projectId, input),
     onSuccess: () => {
       // Invalidate both the project detail and the list
       queryClient.invalidateQueries({
-        queryKey: queryKeys.projects.detail(id),
+        queryKey: queryKeys.projects.detail(projectId),
       });
       queryClient.invalidateQueries({
         queryKey: queryKeys.projects.lists(),
@@ -74,9 +74,12 @@ export function useDeleteProject() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => projectsApi.delete(id),
-    onSuccess: () => {
-      // Invalidate projects list to trigger refetch
+    mutationFn: (projectId: string) => projectsApi.delete(projectId),
+    onSuccess: (_data, projectId) => {
+      // Invalidate both the deleted project and the list
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.projects.detail(projectId),
+      });
       queryClient.invalidateQueries({
         queryKey: queryKeys.projects.lists(),
       });
