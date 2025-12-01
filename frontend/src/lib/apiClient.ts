@@ -8,7 +8,7 @@
  * - Retry logic for transient failures
  */
 
-import axios, { AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios';
 
 /**
  * Base API client configuration

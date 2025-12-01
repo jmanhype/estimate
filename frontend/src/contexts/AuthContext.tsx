@@ -5,8 +5,8 @@
  * Integrates with Supabase for authentication and session management.
  */
 
-import { createContext, useEffect, useState, ReactNode } from 'react';
-import { Session, User, AuthError } from '@supabase/supabase-js';
+import { createContext, useEffect, useState, type ReactNode } from 'react';
+import type { Session, User, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
 /**

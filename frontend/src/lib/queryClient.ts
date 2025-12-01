@@ -27,12 +27,12 @@ const defaultOptions = {
     refetchOnMount: true, // Refetch when component mounts
 
     // Network mode
-    networkMode: 'online' as const, // Only run queries when online
+    networkMode: 'online', // Only run queries when online
   },
   mutations: {
     // Retry configuration for mutations
     retry: 0, // Don't retry mutations by default
-    networkMode: 'online' as const, // Only run mutations when online
+    networkMode: 'online', // Only run mutations when online
   },
 };
 
