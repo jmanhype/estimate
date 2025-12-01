@@ -103,7 +103,7 @@ class CacheService:
             cache = CacheService(await get_redis())
             value = await cache.get("user:123:profile")
         """
-        return await self.redis.get(key)
+        return await self.redis.get(key)  # type: ignore[return-value,no-any-return]
 
     async def set(
         self,
@@ -144,7 +144,7 @@ class CacheService:
             cache = CacheService(await get_redis())
             await cache.delete("user:123:profile")
         """
-        return await self.redis.delete(key)
+        return await self.redis.delete(key)  # type: ignore[return-value,no-any-return]
 
     async def delete_pattern(self, pattern: str) -> int:
         """
@@ -166,7 +166,7 @@ class CacheService:
             keys.append(key)
 
         if keys:
-            return await self.redis.delete(*keys)
+            return await self.redis.delete(*keys)  # type: ignore[return-value,no-any-return]
         return 0
 
     async def exists(self, key: str) -> bool:
@@ -200,7 +200,7 @@ class CacheService:
             cache = CacheService(await get_redis())
             remaining = await cache.ttl("user:123:profile")
         """
-        return await self.redis.ttl(key)
+        return await self.redis.ttl(key)  # type: ignore[return-value,no-any-return]
 
     async def increment(self, key: str, amount: int = 1) -> int:
         """
@@ -220,7 +220,7 @@ class CacheService:
             if count > 100:
                 raise TooManyRequestsError()
         """
-        return await self.redis.incrby(key, amount)
+        return await self.redis.incrby(key, amount)  # type: ignore[return-value,no-any-return]
 
     async def set_hash(self, key: str, mapping: dict[str, Any], ttl: int | None = None) -> bool:
         """
@@ -242,7 +242,7 @@ class CacheService:
                 ttl=300
             )
         """
-        result = await self.redis.hset(key, mapping=mapping)  # type: ignore[arg-type]
+        result = await self.redis.hset(key, mapping=mapping)  # type: ignore[arg-type,misc]
         if ttl is not None:
             await self.redis.expire(key, ttl)
         return bool(result)
@@ -261,7 +261,7 @@ class CacheService:
             cache = CacheService(await get_redis())
             profile = await cache.get_hash("user:123:profile")
         """
-        return await self.redis.hgetall(key)  # type: ignore[return-value]
+        return await self.redis.hgetall(key)  # type: ignore[return-value,no-any-return,misc]
 
     async def ping(self) -> bool:
         """
@@ -276,6 +276,6 @@ class CacheService:
                 logger.error("Redis connection lost")
         """
         try:
-            return await self.redis.ping()
+            return await self.redis.ping()  # type: ignore[return-value,no-any-return,misc]
         except Exception:
             return False

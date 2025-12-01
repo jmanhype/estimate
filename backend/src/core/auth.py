@@ -1,7 +1,7 @@
 """Authentication and authorization utilities for Supabase JWT validation."""
 
 from datetime import datetime, timezone
-from typing import Annotated
+from typing import Annotated, Any
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -140,7 +140,7 @@ async def require_authenticated(
     return user
 
 
-def require_subscription_tier(*allowed_tiers: str):
+def require_subscription_tier(*allowed_tiers: str) -> Any:
     """
     Create a dependency to check user subscription tier.
 

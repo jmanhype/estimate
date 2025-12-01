@@ -1,7 +1,7 @@
 """S3 storage client for file uploads and downloads."""
 
 from datetime import timedelta
-from typing import BinaryIO
+from typing import Any, BinaryIO
 
 import boto3
 from botocore.client import Config
@@ -11,10 +11,10 @@ from src.core.config import settings
 
 
 # S3 client (created lazily)
-_s3_client = None
+_s3_client: Any = None
 
 
-def get_s3_client():
+def get_s3_client() -> Any:
     """
     Get or create S3 client.
 
@@ -53,7 +53,7 @@ class StorageService:
     Provides methods for uploading, downloading, and managing files in S3.
     """
 
-    def __init__(self, s3_client=None) -> None:
+    def __init__(self, s3_client: Any = None) -> None:
         """
         Initialize storage service.
 
@@ -208,7 +208,7 @@ class StorageService:
         """
         try:
             response = self.s3.head_object(Bucket=self.bucket, Key=key)
-            return response["ContentLength"]
+            return int(response["ContentLength"])
         except ClientError as e:
             if e.response["Error"]["Code"] == "404":
                 raise StorageError(f"File not found: {key}") from e
@@ -259,7 +259,7 @@ class StorageService:
                 ExpiresIn=expiration or settings.s3_presigned_url_expiration,
             )
 
-            return url
+            return str(url)
 
         except ClientError as e:
             raise StorageError(f"Failed to generate presigned URL: {e}") from e
