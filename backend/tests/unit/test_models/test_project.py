@@ -241,7 +241,7 @@ class TestProjectRelationships:
         )
         test_session.add(project)
         await test_session.commit()
-        await test_session.refresh(project)
+        await test_session.refresh(project, ["photos"])
 
         # Should have photos attribute (empty list initially)
         assert hasattr(project, "photos")
@@ -265,7 +265,7 @@ class TestProjectRelationships:
         )
         test_session.add(project)
         await test_session.commit()
-        await test_session.refresh(project)
+        await test_session.refresh(project, ["shopping_list"])
 
         # Should have shopping_list attribute (None initially)
         assert hasattr(project, "shopping_list")

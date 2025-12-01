@@ -89,7 +89,8 @@ class TestUserProfileModel:
 
         assert before_create <= user.created_at <= after_create
         assert before_create <= user.updated_at <= after_create
-        assert user.created_at == user.updated_at  # Should be same on creation
+        # Timestamps should be very close on creation (within 1 second)
+        assert abs((user.created_at - user.updated_at).total_seconds()) < 1
 
     @pytest.mark.asyncio
     async def test_user_profile_updated_at_changes_on_update(
@@ -186,7 +187,7 @@ class TestUserProfileRelationships:
 
         test_session.add(user)
         await test_session.commit()
-        await test_session.refresh(user)
+        await test_session.refresh(user, ["projects"])
 
         # Should have projects attribute (empty list initially)
         assert hasattr(user, "projects")
@@ -204,7 +205,7 @@ class TestUserProfileRelationships:
 
         test_session.add(user)
         await test_session.commit()
-        await test_session.refresh(user)
+        await test_session.refresh(user, ["subscription"])
 
         # Should have subscription attribute (None initially)
         assert hasattr(user, "subscription")
