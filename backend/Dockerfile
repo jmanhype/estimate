@@ -23,8 +23,10 @@ COPY --from=builder /app/.venv /app/.venv
 
 # Copy application code
 COPY src ./src
-COPY alembic.ini ./
-COPY alembic ./alembic
+
+# Note: Alembic migrations will be added in Phase 2
+# COPY alembic.ini ./
+# COPY alembic ./alembic
 
 # Set environment variables
 ENV PATH="/app/.venv/bin:$PATH" \
