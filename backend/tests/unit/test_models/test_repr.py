@@ -1,16 +1,13 @@
 """Tests for model __repr__ methods."""
 
+from datetime import UTC
 from decimal import Decimal
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.photo import ProjectPhoto
-from src.models.project import Project
-from src.models.retailer import PricingSnapshot, Retailer
-from src.models.shopping_list import ShoppingList, ShoppingListItem
 from src.models.subscription import Subscription
-from src.models.user import UserProfile
 from src.repositories.project import ProjectRepository
 from src.repositories.retailer import PricingSnapshotRepository, RetailerRepository
 from src.repositories.shopping_list import (
@@ -158,13 +155,13 @@ class TestModelRepresentations:
         })
 
         # Create photo directly using session
-        from datetime import datetime, timezone
+        from datetime import datetime
         photo = ProjectPhoto(
             project_id=project.id,
             storage_path="/path/to/photo.jpg",
             file_size_bytes=12345,
             mime_type="image/jpeg",
-            uploaded_at=datetime.now(timezone.utc),
+            uploaded_at=datetime.now(UTC),
         )
         test_db.add(photo)
         await test_db.commit()
