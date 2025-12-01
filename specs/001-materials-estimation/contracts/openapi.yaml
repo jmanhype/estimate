@@ -1,0 +1,1134 @@
+openapi: 3.1.0
+info:
+  title: EstiMate API
+  version: 1.0.0
+  description: |
+    AI-powered materials estimation API for home renovations.
+
+    ## Authentication
+    All endpoints (except /health) require Bearer token authentication via Supabase Auth.
+    Include token in Authorization header: `Authorization: Bearer <token>`
+
+    ## Rate Limiting
+    - Authenticated: 100 requests/minute
+    - Unauthenticated: 10 requests/minute
+
+    ## Versioning
+    API version is in URL path: `/api/v1/...`
+    Breaking changes will increment major version (v2, v3, etc.)
+
+  contact:
+    name: EstiMate API Support
+    email: api@estimate.app
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.estimate.app/api/v1
+    description: Production
+  - url: https://staging-api.estimate.app/api/v1
+    description: Staging
+  - url: http://localhost:8000/api/v1
+    description: Local Development
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Auth
+    description: Authentication and user management
+  - name: Projects
+    description: Project CRUD operations
+  - name: Photos
+    description: Photo upload and CV analysis
+  - name: Estimation
+    description: Material estimation generation
+  - name: Shopping Lists
+    description: Shopping list and item management
+  - name: Pricing
+    description: Retailer price comparison
+  - name: Subscriptions
+    description: User subscription management
+
+paths:
+  # ========================================
+  # Health & Status
+  # ========================================
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      tags: [Health]
+      security: []  # No auth required
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  # ========================================
+  # Auth
+  # ========================================
+  /auth/me:
+    get:
+      summary: Get current user profile
+      operationId: getCurrentUser
+      tags: [Auth]
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    patch:
+      summary: Update user profile
+      operationId: updateUserProfile
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skill_level:
+                  type: string
+                  enum: [beginner, intermediate, expert]
+                company_name:
+                  type: string
+                  maxLength: 200
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    delete:
+      summary: Delete user account (GDPR right to deletion)
+      operationId: deleteUserAccount
+      tags: [Auth]
+      responses:
+        '204':
+          description: Account deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me/export:
+    get:
+      summary: Export all user data (GDPR right to access)
+      operationId: exportUserData
+      tags: [Auth]
+      responses:
+        '200':
+          description: User data export
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/UserProfile'
+                  subscription:
+                    $ref: '#/components/schemas/Subscription'
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  # ... other data
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ========================================
+  # Projects
+  # ========================================
+  /projects:
+    get:
+      summary: List user's projects
+      operationId: listProjects
+      tags: [Projects]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, in_progress, completed]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Projects list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      summary: Create new project
+      operationId: createProject
+      tags: [Projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, project_type]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                  example: "Living Room Repaint"
+                project_type:
+                  type: string
+                  enum: [painting, flooring, tiling, drywall, concrete, roofing, decking, fencing, kitchen, bathroom, other]
+                budget_amount:
+                  type: number
+                  format: decimal
+                  minimum: 0
+                  example: 1500.00
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Project limit reached (free tier: 3 projects)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}:
+    get:
+      summary: Get project details
+      operationId: getProject
+      tags: [Projects]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Update project
+      operationId: updateProject
+      tags: [Projects]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                status:
+                  type: string
+                  enum: [draft, in_progress, completed]
+                budget_amount:
+                  type: number
+                  format: decimal
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete project
+      operationId: deleteProject
+      tags: [Projects]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '204':
+          description: Project deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
+  # Photos
+  # ========================================
+  /projects/{projectId}/photos/upload-url:
+    post:
+      summary: Get presigned URL for photo upload
+      operationId: getPhotoUploadUrl
+      tags: [Photos]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [file_name, file_size, mime_type]
+              properties:
+                file_name:
+                  type: string
+                  example: "living-room-01.jpg"
+                file_size:
+                  type: integer
+                  minimum: 1
+                  maximum: 10485760  # 10MB
+                  example: 2048576
+                mime_type:
+                  type: string
+                  enum: [image/jpeg, image/png, image/heic]
+      responses:
+        '200':
+          description: Presigned upload URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photo_id:
+                    type: string
+                    format: uuid
+                  upload_url:
+                    type: string
+                    format: uri
+                    description: Presigned S3 PUT URL (expires in 15 minutes)
+                  expires_at:
+                    type: string
+                    format: date-time
+        '400':
+          description: Invalid file (size > 10MB or unsupported type)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Photo limit reached (20 photos per project)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{projectId}/photos:
+    get:
+      summary: List project photos
+      operationId: listPhotos
+      tags: [Photos]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Photos list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Photo'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{projectId}/photos/{photoId}:
+    get:
+      summary: Get photo details with CV analysis
+      operationId: getPhoto
+      tags: [Photos]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/PhotoId'
+      responses:
+        '200':
+          description: Photo details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete photo
+      operationId: deletePhoto
+      tags: [Photos]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/PhotoId'
+      responses:
+        '204':
+          description: Photo deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects/{projectId}/photos/{photoId}/analyze:
+    post:
+      summary: Trigger CV analysis for photo
+      operationId: analyzePhoto
+      tags: [Photos]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - $ref: '#/components/parameters/PhotoId'
+      responses:
+        '202':
+          description: Analysis started (async)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photo_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [processing]
+                  message:
+                    type: string
+                    example: "Analysis in progress, check status via GET /photos/{photoId}"
+        '400':
+          description: Photo not ready (still uploading or scan pending)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
+  # Estimation
+  # ========================================
+  /projects/{projectId}/estimate:
+    post:
+      summary: Generate material estimation
+      operationId: generateEstimation
+      tags: [Estimation]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [room_details]
+              properties:
+                room_details:
+                  type: object
+                  required: [length_ft, width_ft, height_ft]
+                  properties:
+                    length_ft:
+                      type: number
+                      format: decimal
+                      example: 12.5
+                    width_ft:
+                      type: number
+                      format: decimal
+                      example: 10.0
+                    height_ft:
+                      type: number
+                      format: decimal
+                      example: 8.0
+                    doors:
+                      type: integer
+                      default: 0
+                    windows:
+                      type: integer
+                      default: 0
+                    irregular_shape:
+                      type: boolean
+                      default: false
+                material_preferences:
+                  type: object
+                  properties:
+                    material_type:
+                      type: string
+                      enum: [paint, flooring, tile, lumber]
+                      example: "paint"
+                    material_subtype:
+                      type: string
+                      example: "interior-flat-white"
+                use_cv_data:
+                  type: boolean
+                  default: true
+                  description: Use CV analysis from photos if available
+      responses:
+        '201':
+          description: Estimation generated, shopping list created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShoppingList'
+        '400':
+          description: Invalid room details or missing required photos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
+  # Shopping Lists
+  # ========================================
+  /projects/{projectId}/shopping-list:
+    get:
+      summary: Get project shopping list
+      operationId: getShoppingList
+      tags: [Shopping Lists]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Shopping list with items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShoppingList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Project or shopping list not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /projects/{projectId}/shopping-list/items/{itemId}:
+    patch:
+      summary: Update shopping list item (mark as purchased, update actual cost)
+      operationId: updateShoppingListItem
+      tags: [Shopping Lists]
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                purchase_status:
+                  type: string
+                  enum: [not_purchased, purchased]
+                actual_unit_price:
+                  type: number
+                  format: decimal
+                actual_total_cost:
+                  type: number
+                  format: decimal
+                notes:
+                  type: string
+                  maxLength: 1000
+      responses:
+        '200':
+          description: Item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShoppingListItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
+  # Pricing (P2 feature)
+  # ========================================
+  /pricing/compare:
+    get:
+      summary: Compare prices across retailers for a material
+      operationId: comparePrices
+      tags: [Pricing]
+      parameters:
+        - name: material_name
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "Interior Paint - Flat White"
+        - name: unit_of_measure
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [gallons, square_feet, linear_feet, boxes, bags, pieces, each]
+      responses:
+        '200':
+          description: Price comparison
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  material_name:
+                    type: string
+                  prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        retailer:
+                          type: string
+                          enum: [home_depot, lowes, menards, ace_hardware]
+                        unit_price:
+                          type: number
+                          format: decimal
+                        product_url:
+                          type: string
+                          format: uri
+                        availability:
+                          type: string
+                          enum: [in_stock, out_of_stock, unknown]
+                        last_updated:
+                          type: string
+                          format: date-time
+                  best_price:
+                    type: object
+                    properties:
+                      retailer:
+                        type: string
+                      unit_price:
+                        type: number
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Material not found in pricing database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ========================================
+  # Subscriptions
+  # ========================================
+  /subscriptions/me:
+    get:
+      summary: Get current user's subscription
+      operationId: getMySubscription
+      tags: [Subscriptions]
+      responses:
+        '200':
+          description: Subscription details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /subscriptions/checkout:
+    post:
+      summary: Create Stripe checkout session for upgrade
+      operationId: createCheckoutSession
+      tags: [Subscriptions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tier]
+              properties:
+                tier:
+                  type: string
+                  enum: [pro, business]
+                billing_cycle:
+                  type: string
+                  enum: [monthly, annual]
+                  default: monthly
+                success_url:
+                  type: string
+                  format: uri
+                cancel_url:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Checkout session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checkout_url:
+                    type: string
+                    format: uri
+                    description: Redirect user to this URL
+                  session_id:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /subscriptions/portal:
+    post:
+      summary: Create Stripe customer portal session (manage subscription)
+      operationId: createPortalSession
+      tags: [Subscriptions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [return_url]
+              properties:
+                return_url:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Portal session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  portal_url:
+                    type: string
+                    format: uri
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+# ========================================
+# Components
+# ========================================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase Auth JWT token
+
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PhotoId:
+      name: photoId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    # ========================================
+    # User & Auth
+    # ========================================
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        skill_level:
+          type: string
+          enum: [beginner, intermediate, expert]
+        company_name:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        tier:
+          type: string
+          enum: [free, pro, business]
+        status:
+          type: string
+          enum: [active, canceled, past_due, trialing]
+        current_period_start:
+          type: string
+          format: date-time
+          nullable: true
+        current_period_end:
+          type: string
+          format: date-time
+          nullable: true
+        cancel_at_period_end:
+          type: boolean
+
+    # ========================================
+    # Projects
+    # ========================================
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        project_type:
+          type: string
+        status:
+          type: string
+          enum: [draft, in_progress, completed]
+        budget_amount:
+          type: number
+          format: decimal
+          nullable: true
+        total_estimated_cost:
+          type: number
+          format: decimal
+          nullable: true
+        total_actual_cost:
+          type: number
+          format: decimal
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ProjectDetailed:
+      allOf:
+        - $ref: '#/components/schemas/Project'
+        - type: object
+          properties:
+            photos:
+              type: array
+              items:
+                $ref: '#/components/schemas/Photo'
+            shopping_list:
+              $ref: '#/components/schemas/ShoppingList'
+              nullable: true
+
+    # ========================================
+    # Photos
+    # ========================================
+    Photo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        storage_path:
+          type: string
+        file_size_bytes:
+          type: integer
+        mime_type:
+          type: string
+        scan_status:
+          type: string
+          enum: [pending, clean, quarantined]
+        cv_analysis_status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        cv_analysis_result:
+          type: object
+          nullable: true
+          properties:
+            room_dimensions:
+              type: object
+              properties:
+                length_ft:
+                  type: number
+                width_ft:
+                  type: number
+                height_ft:
+                  type: number
+            features:
+              type: object
+              properties:
+                doors:
+                  type: integer
+                windows:
+                  type: integer
+                irregular_shape:
+                  type: boolean
+            confidence:
+              type: number
+              format: decimal
+              minimum: 0
+              maximum: 1
+        cv_confidence_score:
+          type: number
+          format: decimal
+          nullable: true
+        uploaded_at:
+          type: string
+          format: date-time
+
+    # ========================================
+    # Shopping Lists
+    # ========================================
+    ShoppingList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        total_estimated_cost:
+          type: number
+          format: decimal
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShoppingListItem'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ShoppingListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        shopping_list_id:
+          type: string
+          format: uuid
+        material_name:
+          type: string
+        material_category:
+          type: string
+        calculated_quantity:
+          type: number
+          format: decimal
+        waste_factor_percent:
+          type: number
+          format: decimal
+        actual_purchase_quantity:
+          type: number
+          format: decimal
+        unit_of_measure:
+          type: string
+        estimated_unit_price:
+          type: number
+          format: decimal
+          nullable: true
+        estimated_total_cost:
+          type: number
+          format: decimal
+          nullable: true
+        actual_unit_price:
+          type: number
+          format: decimal
+          nullable: true
+        actual_total_cost:
+          type: number
+          format: decimal
+          nullable: true
+        purchase_status:
+          type: string
+          enum: [not_purchased, purchased]
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ========================================
+    # Errors
+    # ========================================
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: "INVALID_REQUEST"
+            message:
+              type: string
+              example: "Project name is required"
+            details:
+              type: object
+              nullable: true
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "UNAUTHORIZED"
+              message: "Valid authentication token required"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "NOT_FOUND"
+              message: "Project not found"
+
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: "RATE_LIMIT_EXCEEDED"
+              message: "Too many requests, try again in 60 seconds"
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Request limit per window
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Requests remaining in current window
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Unix timestamp when limit resets

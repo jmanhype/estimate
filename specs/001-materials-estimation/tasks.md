@@ -1,0 +1,695 @@
+# Implementation Tasks: EstiMate - AI Materials Estimation
+
+**Branch**: `001-materials-estimation` | **Created**: 2025-11-30
+**Spec**: [spec.md](./spec.md) | **Plan**: [plan.md](./plan.md)
+
+## Progress
+
+- **Started**: 2025-11-30
+- **Status**: Not started
+- **Velocity**: TBD (track hours per task)
+- **Blockers**: None
+
+## Task Organization
+
+Tasks organized by:
+- **Phase**: Setup → Foundational → User Stories (P1→P2→P3) → Polish
+- **[P]**: Parallelizable (can run concurrently with other [P] tasks)
+- **[US#]**: Maps to User Story from spec.md
+- **Priority**: P1 (MVP), P2 (Enhanced), P3 (Advanced)
+
+## Phase 1: Setup (Project Initialization)
+
+**Prerequisites**: None
+
+- [ ] T001 [P] Create backend project structure with Poetry (`backend/pyproject.toml`)
+- [ ] T002 [P] Create frontend project structure with Vite + React (`frontend/package.json`)
+- [ ] T003 [P] Setup Docker Compose for local services (`shared/docker-compose.yml` - PostgreSQL, Redis, Mailhog)
+- [ ] T004 [P] Configure pre-commit hooks for backend (`backend/.pre-commit-config.yaml` - black, ruff, mypy, bandit)
+- [ ] T005 [P] Configure pre-commit hooks for frontend (`frontend/.husky/pre-commit` - ESLint, Prettier)
+- [ ] T006 Create backend environment variables template (`backend/.env.example`)
+- [ ] T007 Create frontend environment variables template (`frontend/.env.example`)
+- [ ] T008 Write project README with setup instructions (`README.md`)
+- [ ] T009 Setup CI/CD pipeline configuration (`.github/workflows/ci.yml` - test, lint, build)
+
+**Completion Criteria**: All developers can run `docker-compose up` and start both backend/frontend servers
+
+---
+
+## Phase 2: Foundational (Blocking Prerequisites)
+
+**Prerequisites**: Phase 1 complete
+
+### Database Foundation
+
+- [ ] T010 [P] Implement database connection manager (`backend/src/core/database.py` - SQLAlchemy engine, session factory)
+- [ ] T011 [P] Implement Redis cache client (`backend/src/core/cache.py` - connection pool, get/set/delete methods)
+- [ ] T012 [P] Implement S3 storage client (`backend/src/core/storage.py` - upload, download, presigned URLs)
+- [ ] T013 Write tests for database connection handling (`backend/tests/unit/test_core/test_database.py`)
+- [ ] T014 Write tests for Redis cache operations (`backend/tests/unit/test_core/test_cache.py`)
+- [ ] T015 Write tests for S3 storage operations (`backend/tests/unit/test_core/test_storage.py`)
+
+### Authentication & Authorization
+
+- [ ] T020 [P] Implement authentication configuration (`backend/src/core/config.py` - Supabase settings)
+- [ ] T021 Implement JWT token validation (`backend/src/services/auth/auth_service.py` - verify JWT, extract user_id)
+- [ ] T022 Implement authentication dependency for FastAPI (`backend/src/api/dependencies.py` - @require_auth decorator)
+- [ ] T023 Implement authorization tier checking (`backend/src/api/dependencies.py` - @require_tier(Pro/Business))
+- [ ] T024 Write tests for JWT validation (`backend/tests/unit/test_auth/test_auth_service.py`)
+- [ ] T025 Write tests for authentication middleware (`backend/tests/integration/test_auth_middleware.py`)
+
+### Core Models
+
+- [ ] T030 [P] Create User model with RLS policy (`backend/src/models/user.py` - user_profiles table)
+- [ ] T031 [P] Create Subscription model with RLS (`backend/src/models/subscription.py` - subscriptions table)
+- [ ] T032 [P] Create Project model with RLS (`backend/src/models/project.py` - projects table)
+- [ ] T033 [P] Create ProjectPhoto model with RLS (`backend/src/models/project_photo.py` - project_photos table)
+- [ ] T034 [P] Create ShoppingList model with RLS (`backend/src/models/shopping_list.py` - shopping_lists table)
+- [ ] T035 [P] Create ShoppingListItem model with RLS (`backend/src/models/shopping_list_item.py` - shopping_list_items table)
+- [ ] T036 [P] Create RetailerPrice model with RLS (`backend/src/models/retailer_price.py` - retailer_prices table)
+- [ ] T037 [P] Create ProjectPhase model with RLS (`backend/src/models/project_phase.py` - project_phases table)
+- [ ] T038 [P] Create ProjectFeedback model with RLS (`backend/src/models/feedback.py` - project_feedback table)
+
+### Database Migrations
+
+- [ ] T040 Create Alembic migration for user_profiles table (`backend/alembic/versions/001_create_user_profiles.py`)
+- [ ] T041 Create Alembic migration for subscriptions table (`backend/alembic/versions/002_create_subscriptions.py`)
+- [ ] T042 Create Alembic migration for projects table (`backend/alembic/versions/003_create_projects.py`)
+- [ ] T043 Create Alembic migration for project_photos table (`backend/alembic/versions/004_create_project_photos.py`)
+- [ ] T044 Create Alembic migration for shopping_lists table (`backend/alembic/versions/005_create_shopping_lists.py`)
+- [ ] T045 Create Alembic migration for shopping_list_items table (`backend/alembic/versions/006_create_shopping_list_items.py`)
+- [ ] T046 Create Alembic migration for retailer_prices table (`backend/alembic/versions/007_create_retailer_prices.py`)
+- [ ] T047 Create Alembic migration for project_phases table (`backend/alembic/versions/008_create_project_phases.py`)
+- [ ] T048 Create Alembic migration for project_feedback table (`backend/alembic/versions/009_create_project_feedback.py`)
+- [ ] T049 Test all migrations (up and down) (`backend/tests/integration/test_migrations.py`)
+
+### Repository Layer
+
+- [ ] T050 [P] Implement base repository with CRUD operations (`backend/src/repositories/base.py`)
+- [ ] T051 [P] Implement UserRepository (`backend/src/repositories/user_repository.py` - create, get, update, delete)
+- [ ] T052 [P] Implement ProjectRepository (`backend/src/repositories/project_repository.py` - list, create, get, update, delete)
+- [ ] T053 [P] Implement ShoppingListRepository (`backend/src/repositories/shopping_list_repository.py`)
+- [ ] T054 [P] Implement SubscriptionRepository (`backend/src/repositories/subscription_repository.py`)
+- [ ] T055 Write tests for BaseRepository (`backend/tests/unit/test_repositories/test_base_repository.py`)
+- [ ] T056 Write tests for UserRepository with RLS (`backend/tests/unit/test_repositories/test_user_repository.py`)
+- [ ] T057 Write tests for ProjectRepository with RLS (`backend/tests/unit/test_repositories/test_project_repository.py`)
+- [ ] T058 Write tests for ShoppingListRepository (`backend/tests/unit/test_repositories/test_shopping_list_repository.py`)
+
+### Frontend Foundation
+
+- [ ] T060 [P] Setup React Router with routes (`frontend/src/App.tsx` - auth, projects, estimation, shopping list)
+- [ ] T061 [P] Setup React Query client (`frontend/src/main.tsx` - query client, dev tools)
+- [ ] T062 [P] Implement Axios client with interceptors (`frontend/src/services/api.ts` - auth, error handling)
+- [ ] T063 [P] Implement authentication context (`frontend/src/hooks/useAuth.ts` - login, logout, get user)
+- [ ] T064 [P] Create common UI components (`frontend/src/components/common/` - Button, Input, Modal, Spinner)
+- [ ] T065 Write tests for Axios interceptors (`frontend/tests/unit/api.test.ts`)
+- [ ] T066 Write tests for useAuth hook (`frontend/tests/unit/useAuth.test.tsx`)
+
+**Completion Criteria**: Database schema deployed, authentication working, repositories tested, frontend foundation ready
+
+---
+
+## Phase 3: User Story 1 - Photo-Based Material Estimation (P1 MVP)
+
+**Prerequisites**: Phase 2 complete
+**User Story**: spec.md lines 10-27
+
+### Computer Vision Service
+
+- [ ] T100 [US1] Write tests for ComputerVisionAdapter interface (`backend/tests/unit/test_computer_vision/test_cv_adapter.py`)
+- [ ] T101 [US1] Implement ComputerVisionAdapter base class (`backend/src/services/computer_vision/adapters/base.py`)
+- [ ] T102 [US1] Write tests for Google Cloud Vision adapter (`backend/tests/unit/test_computer_vision/test_google_vision_adapter.py`)
+- [ ] T103 [US1] Implement Google Cloud Vision adapter (`backend/src/services/computer_vision/adapters/google_vision.py`)
+- [ ] T104 [US1] Write tests for AWS Rekognition adapter (`backend/tests/unit/test_computer_vision/test_rekognition_adapter.py`)
+- [ ] T105 [US1] Implement AWS Rekognition adapter (`backend/src/services/computer_vision/adapters/aws_rekognition.py`)
+- [ ] T106 [US1] Write tests for CV service with fallback logic (`backend/tests/unit/test_computer_vision/test_cv_service.py`)
+- [ ] T107 [US1] Implement CV service with circuit breaker (`backend/src/services/computer_vision/cv_service.py`)
+- [ ] T108 [US1] Write integration tests for CV service with real API calls (`backend/tests/integration/test_cv_service_integration.py`)
+
+### Estimation Service
+
+- [ ] T110 [US1] Write tests for waste calculator (`backend/tests/unit/test_estimation/test_waste_calculator.py` - material type, skill level, complexity factors)
+- [ ] T111 [US1] Implement waste calculator (`backend/src/services/estimation/waste_calculator.py`)
+- [ ] T112 [US1] Write tests for paint estimation strategy (`backend/tests/unit/test_estimation/test_strategies/test_paint_strategy.py`)
+- [ ] T113 [US1] Implement paint estimation strategy (`backend/src/services/estimation/strategies/paint_strategy.py`)
+- [ ] T114 [US1] Write tests for flooring estimation strategy (`backend/tests/unit/test_estimation/test_strategies/test_flooring_strategy.py`)
+- [ ] T115 [US1] Implement flooring estimation strategy (`backend/src/services/estimation/strategies/flooring_strategy.py`)
+- [ ] T116 [US1] Write tests for tile estimation strategy (`backend/tests/unit/test_estimation/test_strategies/test_tile_strategy.py`)
+- [ ] T117 [US1] Implement tile estimation strategy (`backend/src/services/estimation/strategies/tile_strategy.py`)
+- [ ] T118 [US1] Write tests for estimation service facade (`backend/tests/unit/test_estimation/test_estimation_service.py`)
+- [ ] T119 [US1] Implement estimation service facade (`backend/src/services/estimation/estimation_service.py`)
+
+### API Endpoints - Projects
+
+- [ ] T120 [US1] Define Pydantic schemas for project requests/responses (`backend/src/schemas/request/project.py`, `backend/src/schemas/response/project.py`)
+- [ ] T121 [US1] Write tests for POST /api/v1/projects endpoint (`backend/tests/integration/test_projects_api.py`)
+- [ ] T122 [US1] Implement POST /api/v1/projects endpoint (`backend/src/api/v1/projects.py`)
+- [ ] T123 [US1] Write tests for GET /api/v1/projects endpoint with pagination (`backend/tests/integration/test_projects_api.py`)
+- [ ] T124 [US1] Implement GET /api/v1/projects endpoint (`backend/src/api/v1/projects.py`)
+- [ ] T125 [US1] Write tests for GET /api/v1/projects/{id} endpoint (`backend/tests/integration/test_projects_api.py`)
+- [ ] T126 [US1] Implement GET /api/v1/projects/{id} endpoint (`backend/src/api/v1/projects.py`)
+- [ ] T127 [US1] Write tests for PATCH /api/v1/projects/{id} endpoint (`backend/tests/integration/test_projects_api.py`)
+- [ ] T128 [US1] Implement PATCH /api/v1/projects/{id} endpoint (`backend/src/api/v1/projects.py`)
+- [ ] T129 [US1] Write tests for DELETE /api/v1/projects/{id} endpoint (`backend/tests/integration/test_projects_api.py`)
+- [ ] T130 [US1] Implement DELETE /api/v1/projects/{id} endpoint (`backend/src/api/v1/projects.py`)
+
+### API Endpoints - Photos
+
+- [ ] T140 [US1] Define Pydantic schemas for photo requests/responses (`backend/src/schemas/request/photo.py`, `backend/src/schemas/response/photo.py`)
+- [ ] T141 [US1] Write tests for POST /api/v1/projects/{id}/photos/upload-url endpoint (`backend/tests/integration/test_photos_api.py`)
+- [ ] T142 [US1] Implement POST /api/v1/projects/{id}/photos/upload-url endpoint with S3 presigned URL (`backend/src/api/v1/photos.py`)
+- [ ] T143 [US1] Write tests for POST /api/v1/projects/{id}/photos/{photoId}/analyze endpoint (`backend/tests/integration/test_photos_api.py`)
+- [ ] T144 [US1] Implement POST /api/v1/projects/{id}/photos/{photoId}/analyze endpoint with async CV analysis (`backend/src/api/v1/photos.py`)
+- [ ] T145 [US1] Write tests for GET /api/v1/projects/{id}/photos endpoint (`backend/tests/integration/test_photos_api.py`)
+- [ ] T146 [US1] Implement GET /api/v1/projects/{id}/photos endpoint (`backend/src/api/v1/photos.py`)
+- [ ] T147 [US1] Write tests for DELETE /api/v1/projects/{id}/photos/{photoId} endpoint (`backend/tests/integration/test_photos_api.py`)
+- [ ] T148 [US1] Implement DELETE /api/v1/projects/{id}/photos/{photoId} endpoint (`backend/src/api/v1/photos.py`)
+
+### API Endpoints - Estimation
+
+- [ ] T150 [US1] Define Pydantic schemas for estimation requests/responses (`backend/src/schemas/request/estimation.py`, `backend/src/schemas/response/estimation.py`)
+- [ ] T151 [US1] Write tests for POST /api/v1/projects/{id}/estimate endpoint (`backend/tests/integration/test_estimation_api.py`)
+- [ ] T152 [US1] Implement POST /api/v1/projects/{id}/estimate endpoint (`backend/src/api/v1/estimates.py`)
+- [ ] T153 [US1] Write tests for GET /api/v1/projects/{id}/estimate endpoint (`backend/tests/integration/test_estimation_api.py`)
+- [ ] T154 [US1] Implement GET /api/v1/projects/{id}/estimate endpoint (`backend/src/api/v1/estimates.py`)
+
+### Frontend - Project Creation
+
+- [ ] T160 [US1] Create ProjectCard component (`frontend/src/components/projects/ProjectCard.tsx`)
+- [ ] T161 [US1] Create NewProjectModal component (`frontend/src/components/projects/NewProjectModal.tsx`)
+- [ ] T162 [US1] Implement useProjects hook with React Query (`frontend/src/hooks/useProjects.ts` - list, create, update, delete)
+- [ ] T163 [US1] Create ProjectsPage with project list (`frontend/src/pages/ProjectsPage.tsx`)
+- [ ] T164 [US1] Write tests for ProjectCard component (`frontend/tests/unit/ProjectCard.test.tsx`)
+- [ ] T165 [US1] Write tests for useProjects hook (`frontend/tests/unit/useProjects.test.ts`)
+
+### Frontend - Photo Upload
+
+- [ ] T170 [US1] Create PhotoUploader component with drag-and-drop (`frontend/src/components/estimation/PhotoUploader.tsx`)
+- [ ] T171 [US1] Create PhotoPreview component (`frontend/src/components/estimation/PhotoPreview.tsx`)
+- [ ] T172 [US1] Implement usePhotoUpload hook (`frontend/src/hooks/usePhotoUpload.ts` - get presigned URL, upload to S3, trigger analysis)
+- [ ] T173 [US1] Create EstimationPage with photo upload UI (`frontend/src/pages/EstimationPage.tsx`)
+- [ ] T174 [US1] Write tests for PhotoUploader component (`frontend/tests/unit/PhotoUploader.test.tsx`)
+- [ ] T175 [US1] Write tests for usePhotoUpload hook (`frontend/tests/unit/usePhotoUpload.test.ts`)
+
+### Frontend - Room Details Form
+
+- [ ] T180 [US1] Create RoomDetailsForm component (`frontend/src/components/estimation/RoomDetailsForm.tsx` - ceiling height, doors, windows)
+- [ ] T181 [US1] Create MaterialTypeSelector component (`frontend/src/components/estimation/MaterialTypeSelector.tsx`)
+- [ ] T182 [US1] Create SkillLevelSelector component (`frontend/src/components/estimation/SkillLevelSelector.tsx`)
+- [ ] T183 [US1] Implement useEstimation hook (`frontend/src/hooks/useEstimation.ts` - create estimation, get result)
+- [ ] T184 [US1] Write tests for RoomDetailsForm component (`frontend/tests/unit/RoomDetailsForm.test.tsx`)
+- [ ] T185 [US1] Write tests for useEstimation hook (`frontend/tests/unit/useEstimation.test.ts`)
+
+### E2E Tests
+
+- [ ] T190 [US1] Write E2E test for photo upload → analysis flow (`frontend/tests/e2e/estimation-flow.spec.ts`)
+- [ ] T191 [US1] Write E2E test for estimation generation (`frontend/tests/e2e/estimation-flow.spec.ts`)
+- [ ] T192 [US1] Write performance test for photo analysis throughput (`backend/tests/performance/test_cv_throughput.py` - target <30s for 3-4 photos)
+
+**Completion Criteria**: Users can upload photos, get CV analysis, and generate material estimates (FR-001 to FR-007)
+
+---
+
+## Phase 4: User Story 2 - Shopping List with Waste Calculations (P1 MVP)
+
+**Prerequisites**: Phase 3 complete
+**User Story**: spec.md lines 30-47
+
+### Shopping List Service
+
+- [ ] T200 [US2] Write tests for unit rounding logic (`backend/tests/unit/test_shopping_list/test_unit_rounder.py` - paint gallons, tile boxes, lumber pieces)
+- [ ] T201 [US2] Implement unit rounding utility (`backend/src/services/shopping_list/unit_rounder.py`)
+- [ ] T202 [US2] Write tests for shopping list generation (`backend/tests/unit/test_shopping_list/test_shopping_list_service.py`)
+- [ ] T203 [US2] Implement shopping list service (`backend/src/services/shopping_list/shopping_list_service.py`)
+
+### API Endpoints - Shopping List
+
+- [ ] T210 [US2] Define Pydantic schemas for shopping list requests/responses (`backend/src/schemas/response/shopping_list.py`)
+- [ ] T211 [US2] Write tests for GET /api/v1/projects/{id}/shopping-list endpoint (`backend/tests/integration/test_shopping_list_api.py`)
+- [ ] T212 [US2] Implement GET /api/v1/projects/{id}/shopping-list endpoint (`backend/src/api/v1/shopping_lists.py`)
+- [ ] T213 [US2] Write tests for PATCH /api/v1/shopping-lists/{id}/items/{itemId} endpoint (`backend/tests/integration/test_shopping_list_api.py`)
+- [ ] T214 [US2] Implement PATCH /api/v1/shopping-lists/{id}/items/{itemId} endpoint (`backend/src/api/v1/shopping_lists.py`)
+
+### Frontend - Shopping List Display
+
+- [ ] T220 [US2] Create ShoppingListItem component (`frontend/src/components/shopping-list/ShoppingListItem.tsx` - material, quantity, waste, unit)
+- [ ] T221 [US2] Create ShoppingListSummary component (`frontend/src/components/shopping-list/ShoppingListSummary.tsx` - total cost, total items)
+- [ ] T222 [US2] Create ExportButton component (`frontend/src/components/shopping-list/ExportButton.tsx` - PDF, email)
+- [ ] T223 [US2] Implement useShoppingList hook (`frontend/src/hooks/useShoppingList.ts` - get list, update items)
+- [ ] T224 [US2] Create ShoppingListPage (`frontend/src/pages/ShoppingListPage.tsx`)
+- [ ] T225 [US2] Write tests for ShoppingListItem component (`frontend/tests/unit/ShoppingListItem.test.tsx`)
+- [ ] T226 [US2] Write tests for useShoppingList hook (`frontend/tests/unit/useShoppingList.test.ts`)
+
+### E2E Tests
+
+- [ ] T230 [US2] Write E2E test for shopping list display with waste calculations (`frontend/tests/e2e/shopping-list.spec.ts`)
+- [ ] T231 [US2] Write E2E test for multi-room project consolidation (`frontend/tests/e2e/shopping-list.spec.ts`)
+
+**Completion Criteria**: Users can view detailed shopping lists with waste calculations and unit rounding (FR-006 to FR-008)
+
+---
+
+## Phase 5: User Account & Subscription Management (P1 MVP)
+
+**Prerequisites**: Phase 2 complete
+**Functional Requirements**: FR-009 to FR-012
+
+### Subscription Service
+
+- [ ] T240 [P] Write tests for Stripe webhook handler (`backend/tests/unit/test_payment/test_stripe_service.py`)
+- [ ] T241 [P] Implement Stripe webhook handler (`backend/src/services/payment/stripe_service.py` - subscription events)
+- [ ] T242 [P] Write tests for subscription tier enforcement (`backend/tests/unit/test_payment/test_tier_enforcement.py`)
+- [ ] T243 [P] Implement subscription tier enforcement middleware (`backend/src/api/middleware.py` - check project limits, feature access)
+- [ ] T244 Write contract tests for Stripe adapter (`backend/tests/contract/test_stripe_adapter.py`)
+
+### API Endpoints - Auth & Subscriptions
+
+- [ ] T250 Define Pydantic schemas for auth/subscription requests/responses (`backend/src/schemas/request/auth.py`, `backend/src/schemas/response/subscription.py`)
+- [ ] T251 Write tests for GET /api/v1/auth/me endpoint (`backend/tests/integration/test_auth_api.py`)
+- [ ] T252 Implement GET /api/v1/auth/me endpoint (`backend/src/api/v1/auth.py`)
+- [ ] T253 Write tests for PATCH /api/v1/auth/me endpoint (`backend/tests/integration/test_auth_api.py`)
+- [ ] T254 Implement PATCH /api/v1/auth/me endpoint (`backend/src/api/v1/auth.py`)
+- [ ] T255 Write tests for DELETE /api/v1/auth/me endpoint (GDPR) (`backend/tests/integration/test_auth_api.py`)
+- [ ] T256 Implement DELETE /api/v1/auth/me endpoint with cascade deletion (`backend/src/api/v1/auth.py`)
+- [ ] T257 Write tests for POST /api/v1/subscriptions/checkout endpoint (`backend/tests/integration/test_subscriptions_api.py`)
+- [ ] T258 Implement POST /api/v1/subscriptions/checkout endpoint (`backend/src/api/v1/subscriptions.py`)
+- [ ] T259 Write tests for POST /api/v1/webhooks/stripe endpoint (`backend/tests/integration/test_webhooks_api.py`)
+- [ ] T260 Implement POST /api/v1/webhooks/stripe endpoint (`backend/src/api/v1/webhooks.py`)
+
+### Frontend - Auth & Account
+
+- [ ] T270 [P] Create LoginPage component (`frontend/src/pages/LoginPage.tsx` - Supabase Auth UI)
+- [ ] T271 [P] Create SignupPage component (`frontend/src/pages/SignupPage.tsx`)
+- [ ] T272 [P] Create AccountPage component (`frontend/src/pages/AccountPage.tsx` - profile, subscription)
+- [ ] T273 [P] Create UpgradeModal component (`frontend/src/components/subscription/UpgradeModal.tsx` - tier comparison, Stripe checkout)
+- [ ] T274 [P] Implement useSubscription hook (`frontend/src/hooks/useSubscription.ts`)
+- [ ] T275 Write tests for UpgradeModal component (`frontend/tests/unit/UpgradeModal.test.tsx`)
+- [ ] T276 Write tests for useSubscription hook (`frontend/tests/unit/useSubscription.test.ts`)
+
+### E2E Tests
+
+- [ ] T280 Write E2E test for signup → login flow (`frontend/tests/e2e/auth.spec.ts`)
+- [ ] T281 Write E2E test for free tier project limit enforcement (`frontend/tests/e2e/subscription.spec.ts`)
+- [ ] T282 Write E2E test for upgrade flow (test mode Stripe) (`frontend/tests/e2e/subscription.spec.ts`)
+
+**Completion Criteria**: User accounts, authentication, and subscription management working (FR-009 to FR-012)
+
+---
+
+## Phase 6: User Story 4 - Cost Tracking & Budget Management (P2)
+
+**Prerequisites**: Phase 4 complete
+**User Story**: spec.md lines 68-84
+**Functional Requirements**: FR-013 to FR-016
+
+### Budget Tracking Service
+
+- [ ] T300 [US4] Write tests for budget calculator (`backend/tests/unit/test_budget/test_budget_calculator.py` - variance, warnings)
+- [ ] T301 [US4] Implement budget calculator (`backend/src/services/budget/budget_calculator.py`)
+- [ ] T302 [US4] Write tests for purchase tracking (`backend/tests/unit/test_budget/test_purchase_tracker.py`)
+- [ ] T303 [US4] Implement purchase tracking service (`backend/src/services/budget/purchase_tracker.py`)
+
+### API Endpoints - Budget
+
+- [ ] T310 [US4] Define Pydantic schemas for budget requests/responses (`backend/src/schemas/request/budget.py`)
+- [ ] T311 [US4] Write tests for PATCH /api/v1/projects/{id}/budget endpoint (`backend/tests/integration/test_budget_api.py`)
+- [ ] T312 [US4] Implement PATCH /api/v1/projects/{id}/budget endpoint (`backend/src/api/v1/projects.py`)
+- [ ] T313 [US4] Write tests for POST /api/v1/shopping-lists/items/{itemId}/mark-purchased endpoint (`backend/tests/integration/test_budget_api.py`)
+- [ ] T314 [US4] Implement POST /api/v1/shopping-lists/items/{itemId}/mark-purchased endpoint (`backend/src/api/v1/shopping_lists.py`)
+- [ ] T315 [US4] Write tests for GET /api/v1/projects/{id}/budget/summary endpoint (`backend/tests/integration/test_budget_api.py`)
+- [ ] T316 [US4] Implement GET /api/v1/projects/{id}/budget/summary endpoint (`backend/src/api/v1/projects.py`)
+
+### Frontend - Budget Tracking
+
+- [ ] T320 [US4] Create BudgetSetter component (`frontend/src/components/budget/BudgetSetter.tsx`)
+- [ ] T321 [US4] Create BudgetProgress component (`frontend/src/components/budget/BudgetProgress.tsx` - progress bar, warnings)
+- [ ] T322 [US4] Create PurchaseTracker component (`frontend/src/components/budget/PurchaseTracker.tsx` - mark purchased, enter cost)
+- [ ] T323 [US4] Create VarianceReport component (`frontend/src/components/budget/VarianceReport.tsx` - estimated vs actual)
+- [ ] T324 [US4] Implement useBudget hook (`frontend/src/hooks/useBudget.ts`)
+- [ ] T325 [US4] Update ShoppingListPage with budget tracking UI (`frontend/src/pages/ShoppingListPage.tsx`)
+- [ ] T326 [US4] Write tests for BudgetProgress component (`frontend/tests/unit/BudgetProgress.test.tsx`)
+- [ ] T327 [US4] Write tests for useBudget hook (`frontend/tests/unit/useBudget.test.ts`)
+
+### E2E Tests
+
+- [ ] T330 [US4] Write E2E test for budget setting and tracking (`frontend/tests/e2e/budget.spec.ts`)
+- [ ] T331 [US4] Write E2E test for budget warning at 90% threshold (`frontend/tests/e2e/budget.spec.ts`)
+
+**Completion Criteria**: Users can set budgets, track purchases, and view variance reports (FR-013 to FR-016)
+
+---
+
+## Phase 7: User Story 5 - Supplier Price Comparisons (P2)
+
+**Prerequisites**: Phase 4 complete
+**User Story**: spec.md lines 87-104
+**Functional Requirements**: FR-017 to FR-022
+
+### Retailer Integration
+
+- [ ] T340 [US5] Write tests for RetailerAPIAdapter interface (`backend/tests/unit/test_pricing/test_retailer_adapter.py`)
+- [ ] T341 [US5] Implement RetailerAPIAdapter base class (`backend/src/services/pricing/adapters/base.py`)
+- [ ] T342 [US5] Write tests for Home Depot adapter (`backend/tests/unit/test_pricing/test_home_depot_adapter.py`)
+- [ ] T343 [US5] Implement Home Depot adapter with web scraping (`backend/src/services/pricing/adapters/home_depot.py`)
+- [ ] T344 [US5] Write tests for Lowe's adapter (`backend/tests/unit/test_pricing/test_lowes_adapter.py`)
+- [ ] T345 [US5] Implement Lowe's adapter with web scraping (`backend/src/services/pricing/adapters/lowes.py`)
+- [ ] T346 [US5] Write contract tests for retailer adapters (`backend/tests/contract/test_retailer_adapters.py`)
+
+### Pricing Service
+
+- [ ] T350 [US5] Write tests for price optimizer (`backend/tests/unit/test_pricing/test_optimizer.py` - minimize cost, minimize trips)
+- [ ] T351 [US5] Implement price optimizer (`backend/src/services/pricing/optimizer.py`)
+- [ ] T352 [US5] Write tests for pricing service facade (`backend/tests/unit/test_pricing/test_pricing_service.py`)
+- [ ] T353 [US5] Implement pricing service facade with caching (`backend/src/services/pricing/pricing_service.py`)
+
+### API Endpoints - Pricing
+
+- [ ] T360 [US5] Define Pydantic schemas for pricing requests/responses (`backend/src/schemas/response/pricing.py`)
+- [ ] T361 [US5] Write tests for GET /api/v1/pricing/compare endpoint (`backend/tests/integration/test_pricing_api.py`)
+- [ ] T362 [US5] Implement GET /api/v1/pricing/compare endpoint with caching (`backend/src/api/v1/pricing.py`)
+- [ ] T363 [US5] Write tests for POST /api/v1/pricing/refresh endpoint (`backend/tests/integration/test_pricing_api.py`)
+- [ ] T364 [US5] Implement POST /api/v1/pricing/refresh endpoint (`backend/src/api/v1/pricing.py`)
+
+### Frontend - Price Comparison
+
+- [ ] T370 [US5] Create PriceComparisonCard component (`frontend/src/components/pricing/PriceComparisonCard.tsx` - show prices per retailer)
+- [ ] T371 [US5] Create OptimizedShoppingPlan component (`frontend/src/components/pricing/OptimizedShoppingPlan.tsx` - which items from which store)
+- [ ] T372 [US5] Create PriceFreshnessIndicator component (`frontend/src/components/pricing/PriceFreshnessIndicator.tsx` - last updated timestamp)
+- [ ] T373 [US5] Implement usePricing hook (`frontend/src/hooks/usePricing.ts`)
+- [ ] T374 [US5] Create PricingPage (`frontend/src/pages/PricingPage.tsx`)
+- [ ] T375 [US5] Write tests for PriceComparisonCard component (`frontend/tests/unit/PriceComparisonCard.test.tsx`)
+- [ ] T376 [US5] Write tests for usePricing hook (`frontend/tests/unit/usePricing.test.ts`)
+
+### E2E Tests
+
+- [ ] T380 [US5] Write E2E test for price comparison display (`frontend/tests/e2e/pricing.spec.ts`)
+- [ ] T381 [US5] Write E2E test for optimized shopping plan generation (`frontend/tests/e2e/pricing.spec.ts`)
+
+**Completion Criteria**: Users can compare prices across retailers and get optimized shopping plans (FR-017 to FR-022)
+
+---
+
+## Phase 8: User Story 6 - Retailer Checkout Integration (P2)
+
+**Prerequisites**: Phase 7 complete
+**User Story**: spec.md lines 107-124
+**Functional Requirements**: FR-020
+
+### Checkout Integration
+
+- [ ] T390 [US6] Write tests for cart URL builder (`backend/tests/unit/test_pricing/test_cart_builder.py` - Home Depot, Lowe's URL formats)
+- [ ] T391 [US6] Implement cart URL builder (`backend/src/services/pricing/cart_builder.py`)
+- [ ] T392 [US6] Write tests for checkout service (`backend/tests/unit/test_pricing/test_checkout_service.py`)
+- [ ] T393 [US6] Implement checkout service (`backend/src/services/pricing/checkout_service.py`)
+
+### API Endpoints - Checkout
+
+- [ ] T400 [US6] Define Pydantic schemas for checkout requests/responses (`backend/src/schemas/request/checkout.py`)
+- [ ] T401 [US6] Write tests for POST /api/v1/checkout/build-cart endpoint (`backend/tests/integration/test_checkout_api.py`)
+- [ ] T402 [US6] Implement POST /api/v1/checkout/build-cart endpoint (`backend/src/api/v1/checkout.py`)
+
+### Frontend - Checkout
+
+- [ ] T410 [US6] Create CheckoutButton component (`frontend/src/components/checkout/CheckoutButton.tsx` - retailer selection, open cart URL)
+- [ ] T411 [US6] Create StockAvailability component (`frontend/src/components/checkout/StockAvailability.tsx` - show out-of-stock warnings)
+- [ ] T412 [US6] Implement useCheckout hook (`frontend/src/hooks/useCheckout.ts`)
+- [ ] T413 [US6] Update ShoppingListPage with checkout integration (`frontend/src/pages/ShoppingListPage.tsx`)
+- [ ] T414 [US6] Write tests for CheckoutButton component (`frontend/tests/unit/CheckoutButton.test.tsx`)
+- [ ] T415 [US6] Write tests for useCheckout hook (`frontend/tests/unit/useCheckout.test.ts`)
+
+### E2E Tests
+
+- [ ] T420 [US6] Write E2E test for checkout flow (mock retailer URLs) (`frontend/tests/e2e/checkout.spec.ts`)
+- [ ] T421 [US6] Write E2E test for out-of-stock handling (`frontend/tests/e2e/checkout.spec.ts`)
+
+**Completion Criteria**: Users can add shopping lists to retailer carts with one click (FR-020)
+
+---
+
+## Phase 9: User Story 3 - Project Type Templates (P2)
+
+**Prerequisites**: Phase 4 complete
+**User Story**: spec.md lines 50-65
+
+### Template Service
+
+- [ ] T430 [US3] Write tests for template definitions (`backend/tests/unit/test_templates/test_template_service.py`)
+- [ ] T431 [US3] Implement template service (`backend/src/services/templates/template_service.py` - kitchen, bathroom, bedroom, deck templates)
+- [ ] T432 [US3] Create template fixtures (`backend/src/services/templates/fixtures/` - JSON template definitions)
+
+### API Endpoints - Templates
+
+- [ ] T440 [US3] Define Pydantic schemas for template requests/responses (`backend/src/schemas/response/template.py`)
+- [ ] T441 [US3] Write tests for GET /api/v1/templates endpoint (`backend/tests/integration/test_templates_api.py`)
+- [ ] T442 [US3] Implement GET /api/v1/templates endpoint (`backend/src/api/v1/templates.py`)
+- [ ] T443 [US3] Write tests for POST /api/v1/projects/from-template endpoint (`backend/tests/integration/test_templates_api.py`)
+- [ ] T444 [US3] Implement POST /api/v1/projects/from-template endpoint (`backend/src/api/v1/projects.py`)
+
+### Frontend - Templates
+
+- [ ] T450 [US3] Create TemplateSelector component (`frontend/src/components/templates/TemplateSelector.tsx` - grid of template cards)
+- [ ] T451 [US3] Create TemplateWizard component (`frontend/src/components/templates/TemplateWizard.tsx` - multi-step guided flow)
+- [ ] T452 [US3] Implement useTemplates hook (`frontend/src/hooks/useTemplates.ts`)
+- [ ] T453 [US3] Update NewProjectModal to support templates (`frontend/src/components/projects/NewProjectModal.tsx`)
+- [ ] T454 [US3] Write tests for TemplateSelector component (`frontend/tests/unit/TemplateSelector.test.tsx`)
+- [ ] T455 [US3] Write tests for useTemplates hook (`frontend/tests/unit/useTemplates.test.ts`)
+
+### E2E Tests
+
+- [ ] T460 [US3] Write E2E test for template-based project creation (`frontend/tests/e2e/templates.spec.ts`)
+- [ ] T461 [US3] Write E2E test for template customization (`frontend/tests/e2e/templates.spec.ts`)
+
+**Completion Criteria**: Users can select project templates and follow guided estimation flows (User Story 3)
+
+---
+
+## Phase 10: User Story 7 - Project Timeline Planning (P3)
+
+**Prerequisites**: Phase 9 complete
+**User Story**: spec.md lines 127-143
+**Functional Requirements**: FR-023 to FR-026
+
+### Timeline Service
+
+- [ ] T470 [US7] Write tests for duration estimator (`backend/tests/unit/test_timeline/test_duration_estimator.py` - skill-based estimates)
+- [ ] T471 [US7] Implement duration estimator (`backend/src/services/timeline/duration_estimator.py`)
+- [ ] T472 [US7] Write tests for timeline service (`backend/tests/unit/test_timeline/test_timeline_service.py`)
+- [ ] T473 [US7] Implement timeline service (`backend/src/services/timeline/timeline_service.py`)
+
+### API Endpoints - Timeline
+
+- [ ] T480 [US7] Define Pydantic schemas for timeline requests/responses (`backend/src/schemas/request/timeline.py`)
+- [ ] T481 [US7] Write tests for POST /api/v1/projects/{id}/timeline endpoint (`backend/tests/integration/test_timeline_api.py`)
+- [ ] T482 [US7] Implement POST /api/v1/projects/{id}/timeline endpoint (`backend/src/api/v1/timeline.py`)
+- [ ] T483 [US7] Write tests for PATCH /api/v1/projects/{id}/timeline/phases/{phaseId} endpoint (`backend/tests/integration/test_timeline_api.py`)
+- [ ] T484 [US7] Implement PATCH /api/v1/projects/{id}/timeline/phases/{phaseId} endpoint (`backend/src/api/v1/timeline.py`)
+
+### Frontend - Timeline
+
+- [ ] T490 [US7] Create TimelineGantt component (`frontend/src/components/timeline/TimelineGantt.tsx` - visual timeline)
+- [ ] T491 [US7] Create PhaseCard component (`frontend/src/components/timeline/PhaseCard.tsx` - phase details, mark complete)
+- [ ] T492 [US7] Implement useTimeline hook (`frontend/src/hooks/useTimeline.ts`)
+- [ ] T493 [US7] Create TimelinePage (`frontend/src/pages/TimelinePage.tsx`)
+- [ ] T494 [US7] Write tests for TimelineGantt component (`frontend/tests/unit/TimelineGantt.test.tsx`)
+- [ ] T495 [US7] Write tests for useTimeline hook (`frontend/tests/unit/useTimeline.test.ts`)
+
+### E2E Tests
+
+- [ ] T500 [US7] Write E2E test for timeline creation (`frontend/tests/e2e/timeline.spec.ts`)
+- [ ] T501 [US7] Write E2E test for phase completion updates (`frontend/tests/e2e/timeline.spec.ts`)
+
+**Completion Criteria**: Users can create project timelines with phases and material order dates (FR-023 to FR-026)
+
+---
+
+## Phase 11: User Story 8 - AI Learning from Feedback (P3)
+
+**Prerequisites**: Phase 10 complete
+**User Story**: spec.md lines 146-161
+**Functional Requirements**: FR-027 to FR-030
+
+### Feedback & Learning
+
+- [ ] T510 [US8] Write tests for feedback collector (`backend/tests/unit/test_feedback/test_feedback_service.py`)
+- [ ] T511 [US8] Implement feedback collector service (`backend/src/services/feedback/feedback_service.py`)
+- [ ] T512 [US8] Write tests for accuracy analyzer (`backend/tests/unit/test_feedback/test_accuracy_analyzer.py`)
+- [ ] T513 [US8] Implement accuracy analyzer (`backend/src/services/feedback/accuracy_analyzer.py`)
+- [ ] T514 [US8] Write tests for waste factor adjuster (ML pipeline) (`backend/tests/unit/test_feedback/test_waste_adjuster.py`)
+- [ ] T515 [US8] Implement waste factor adjuster (`backend/src/services/feedback/waste_adjuster.py`)
+
+### API Endpoints - Feedback
+
+- [ ] T520 [US8] Define Pydantic schemas for feedback requests/responses (`backend/src/schemas/request/feedback.py`)
+- [ ] T521 [US8] Write tests for POST /api/v1/projects/{id}/feedback endpoint (`backend/tests/integration/test_feedback_api.py`)
+- [ ] T522 [US8] Implement POST /api/v1/projects/{id}/feedback endpoint (`backend/src/api/v1/feedback.py`)
+- [ ] T523 [US8] Write tests for GET /api/v1/estimation/confidence endpoint (`backend/tests/integration/test_feedback_api.py`)
+- [ ] T524 [US8] Implement GET /api/v1/estimation/confidence endpoint (`backend/src/api/v1/estimates.py`)
+
+### Frontend - Feedback
+
+- [ ] T530 [US8] Create FeedbackForm component (`frontend/src/components/feedback/FeedbackForm.tsx` - actual vs estimated)
+- [ ] T531 [US8] Create ConfidenceIndicator component (`frontend/src/components/feedback/ConfidenceIndicator.tsx` - "Based on N projects")
+- [ ] T532 [US8] Implement useFeedback hook (`frontend/src/hooks/useFeedback.ts`)
+- [ ] T533 [US8] Update EstimationPage with confidence indicators (`frontend/src/pages/EstimationPage.tsx`)
+- [ ] T534 [US8] Write tests for FeedbackForm component (`frontend/tests/unit/FeedbackForm.test.tsx`)
+- [ ] T535 [US8] Write tests for useFeedback hook (`frontend/tests/unit/useFeedback.test.ts`)
+
+### E2E Tests
+
+- [ ] T540 [US8] Write E2E test for feedback submission (`frontend/tests/e2e/feedback.spec.ts`)
+- [ ] T541 [US8] Write E2E test for confidence display (`frontend/tests/e2e/feedback.spec.ts`)
+
+**Completion Criteria**: Users can submit project feedback and see AI-learned improvements (FR-027 to FR-030)
+
+---
+
+## Phase 12: User Story 9 - Contractor Features (P3)
+
+**Prerequisites**: Phase 11 complete
+**User Story**: spec.md lines 164-180
+**Functional Requirements**: FR-031 to FR-034
+
+### Contractor Services
+
+- [ ] T550 [US9] Write tests for quote generator (`backend/tests/unit/test_contractor/test_quote_generator.py` - labor, markup, profit)
+- [ ] T551 [US9] Implement quote generator service (`backend/src/services/contractor/quote_generator.py`)
+- [ ] T552 [US9] Write tests for PDF exporter (`backend/tests/unit/test_contractor/test_pdf_exporter.py`)
+- [ ] T553 [US9] Implement PDF exporter with branding (`backend/src/services/contractor/pdf_exporter.py`)
+- [ ] T554 [US9] Write tests for analytics service (`backend/tests/unit/test_contractor/test_analytics_service.py`)
+- [ ] T555 [US9] Implement analytics service (`backend/src/services/contractor/analytics_service.py`)
+
+### API Endpoints - Contractor
+
+- [ ] T560 [US9] Define Pydantic schemas for contractor requests/responses (`backend/src/schemas/request/contractor.py`)
+- [ ] T561 [US9] Write tests for POST /api/v1/quotes endpoint (business tier only) (`backend/tests/integration/test_quotes_api.py`)
+- [ ] T562 [US9] Implement POST /api/v1/quotes endpoint (`backend/src/api/v1/quotes.py`)
+- [ ] T563 [US9] Write tests for POST /api/v1/quotes/{id}/export endpoint (`backend/tests/integration/test_quotes_api.py`)
+- [ ] T564 [US9] Implement POST /api/v1/quotes/{id}/export endpoint (`backend/src/api/v1/quotes.py`)
+- [ ] T565 [US9] Write tests for GET /api/v1/analytics/dashboard endpoint (`backend/tests/integration/test_analytics_api.py`)
+- [ ] T566 [US9] Implement GET /api/v1/analytics/dashboard endpoint (`backend/src/api/v1/analytics.py`)
+
+### Frontend - Contractor
+
+- [ ] T570 [US9] Create QuoteBuilder component (`frontend/src/components/contractor/QuoteBuilder.tsx` - labor, markup inputs)
+- [ ] T571 [US9] Create BrandingSettings component (`frontend/src/components/contractor/BrandingSettings.tsx` - logo, company info)
+- [ ] T572 [US9] Create ClientProjectList component (`frontend/src/components/contractor/ClientProjectList.tsx`)
+- [ ] T573 [US9] Create AnalyticsDashboard component (`frontend/src/components/contractor/AnalyticsDashboard.tsx`)
+- [ ] T574 [US9] Implement useContractor hook (`frontend/src/hooks/useContractor.ts`)
+- [ ] T575 [US9] Create ContractorDashboardPage (business tier only) (`frontend/src/pages/ContractorDashboardPage.tsx`)
+- [ ] T576 [US9] Write tests for QuoteBuilder component (`frontend/tests/unit/QuoteBuilder.test.tsx`)
+- [ ] T577 [US9] Write tests for useContractor hook (`frontend/tests/unit/useContractor.test.ts`)
+
+### E2E Tests
+
+- [ ] T580 [US9] Write E2E test for quote creation and export (`frontend/tests/e2e/contractor.spec.ts`)
+- [ ] T581 [US9] Write E2E test for analytics dashboard (`frontend/tests/e2e/contractor.spec.ts`)
+
+**Completion Criteria**: Business tier users can create quotes, export PDFs, and view analytics (FR-031 to FR-034)
+
+---
+
+## Phase 13: Polish & Production Readiness
+
+**Prerequisites**: All user story phases complete
+
+### Observability
+
+- [ ] T600 [P] Implement Prometheus metrics (`backend/src/core/metrics.py` - request counts, latencies, errors)
+- [ ] T601 [P] Implement structured logging (`backend/src/core/logging.py` - correlation IDs, context)
+- [ ] T602 [P] Implement OpenTelemetry tracing (`backend/src/core/tracing.py` - span creation, context propagation)
+- [ ] T603 [P] Create Grafana dashboard configurations (`shared/monitoring/grafana/` - system health, business metrics)
+- [ ] T604 [P] Setup Sentry error tracking (`backend/src/core/sentry.py`, `frontend/src/sentry.ts`)
+- [ ] T605 Write tests for metrics collection (`backend/tests/unit/test_core/test_metrics.py`)
+- [ ] T606 Write tests for tracing (`backend/tests/unit/test_core/test_tracing.py`)
+
+### Performance Optimization
+
+- [ ] T610 [P] Implement database query optimization (`backend/src/repositories/` - add eager loading, indexes)
+- [ ] T611 [P] Implement Redis caching for hot paths (`backend/src/services/` - pricing data, user profiles)
+- [ ] T612 [P] Implement CDN configuration for frontend assets (`frontend/vite.config.ts` - build optimization)
+- [ ] T613 [P] Implement API response compression (`backend/src/api/middleware.py` - gzip)
+- [ ] T614 Write performance tests for API endpoints (`backend/tests/performance/test_api_latency.py` - verify p95 <500ms)
+- [ ] T615 Write load tests with Locust (`backend/tests/performance/locustfile.py` - 10K concurrent users)
+
+### Security Hardening
+
+- [ ] T620 [P] Implement rate limiting (`backend/src/api/middleware.py` - 100 req/min authenticated)
+- [ ] T621 [P] Implement CORS configuration (`backend/src/main.py` - allowed origins)
+- [ ] T622 [P] Implement CSP headers (`backend/src/api/middleware.py`)
+- [ ] T623 [P] Implement file upload virus scanning (`backend/src/services/storage/virus_scanner.py` - ClamAV integration)
+- [ ] T624 [P] Implement PII scrubbing in logs (`backend/src/core/logging.py` - regex filters)
+- [ ] T625 Run security scan with Bandit (`backend/` - automated in CI)
+- [ ] T626 Run OWASP dependency check (`backend/`, `frontend/` - automated in CI)
+- [ ] T627 Write security tests for tenant isolation (`backend/tests/integration/test_security/test_rls.py`)
+- [ ] T628 Write security tests for input validation (`backend/tests/integration/test_security/test_validation.py`)
+
+### Documentation
+
+- [ ] T640 [P] Write API documentation (`shared/docs/api/` - endpoint guides, examples)
+- [ ] T641 [P] Write architecture decision records (`shared/docs/adr/` - 001-cv, 002-retailers, 003-estimation)
+- [ ] T642 [P] Write deployment guide (`shared/docs/deployment.md` - AWS ECS setup)
+- [ ] T643 [P] Write runbook for operations (`shared/docs/runbook.md` - common incidents, troubleshooting)
+- [ ] T644 [P] Generate OpenAPI schema docs (`backend/src/main.py` - auto-generate at /docs)
+- [ ] T645 [P] Write user guide (`shared/docs/user-guide.md` - how to use EstiMate)
+
+### Deployment
+
+- [ ] T650 Create Dockerfile for backend (`backend/Dockerfile` - multi-stage build)
+- [ ] T651 Create Dockerfile for frontend (`frontend/Dockerfile`)
+- [ ] T652 Create Kubernetes manifests (`shared/k8s/` - deployments, services, ingress)
+- [ ] T653 Create Terraform infrastructure as code (`shared/terraform/` - AWS ECS, RDS, ElastiCache, S3)
+- [ ] T654 Create CI/CD pipeline (``.github/workflows/deploy.yml` - build, test, deploy to staging/production)
+- [ ] T655 Setup database backup automation (`shared/scripts/backup-db.sh` - daily backups to S3)
+- [ ] T656 Setup monitoring alerts (`shared/monitoring/alerts.yml` - latency, error rate, downtime)
+- [ ] T657 Test full deployment to staging environment
+- [ ] T658 Perform load testing on staging (`backend/tests/performance/` - verify 10K concurrent users)
+- [ ] T659 Perform security penetration testing on staging
+- [ ] T660 Create production deployment checklist (`shared/docs/deployment-checklist.md`)
+
+### Final Validation
+
+- [ ] T670 Run full E2E test suite (`frontend/tests/e2e/` - all user flows)
+- [ ] T671 Verify all success criteria met (spec.md SC-001 to SC-012)
+- [ ] T672 Verify all functional requirements implemented (spec.md FR-001 to FR-034)
+- [ ] T673 Verify test coverage ≥90% (`pytest --cov`, `vitest --coverage`)
+- [ ] T674 Verify accessibility compliance (WCAG 2.1 AA) with axe-core
+- [ ] T675 Verify performance targets met (p95 <500ms, <30s photo analysis)
+- [ ] T676 Verify security checklist complete (`specs/001-materials-estimation/checklists/security.md`)
+- [ ] T677 Verify API documentation complete and accurate
+- [ ] T678 Conduct final code review (all PRs merged)
+- [ ] T679 Deploy to production
+
+**Completion Criteria**: Application production-ready with monitoring, security, performance, and documentation complete
+
+---
+
+## Summary Statistics
+
+- **Total Tasks**: 350 (numbered T001-T679 with intentional gaps for organization)
+- **Setup Phase**: 9 tasks
+- **Foundational Phase**: 51 tasks
+- **User Story 1 (P1)**: 92 tasks
+- **User Story 2 (P1)**: 32 tasks
+- **User Story 4 (P2)**: 32 tasks
+- **User Story 5 (P2)**: 42 tasks
+- **User Story 6 (P2)**: 32 tasks
+- **User Story 3 (P2)**: 32 tasks
+- **User Story 7 (P3)**: 32 tasks
+- **User Story 8 (P3)**: 32 tasks
+- **User Story 9 (P3)**: 32 tasks
+- **Polish Phase**: 80 tasks
+
+**Estimated Timeline** (at 3 tasks/hour with 90%+ test coverage):
+- Phase 1-2 (Setup + Foundation): ~20 hours
+- Phase 3-4 (P1 MVP): ~40 hours
+- Phase 5 (Subscriptions): ~15 hours
+- Phase 6-9 (P2 Features): ~45 hours
+- Phase 10-12 (P3 Features): ~32 hours
+- Phase 13 (Polish): ~27 hours
+- **Total**: ~180 hours (~4.5 weeks at full-time pace)
+
+**Next Steps**:
+1. Review tasks.md with team
+2. Create Beads epic issues for each phase
+3. Begin Phase 1 (Setup) with `bd ready`
+4. Track progress in Beads, update tasks.md as work completes
