@@ -1,14 +1,11 @@
 """Tests for model __repr__ methods."""
 
+from datetime import UTC
 from decimal import Decimal
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.project import Project
-from src.models.retailer import RetailerPrice
-from src.models.shopping_list import ShoppingList, ShoppingListItem
-from src.models.user import UserProfile
 from src.repositories.project import ProjectRepository
 from src.repositories.retailer import RetailerPriceRepository
 from src.repositories.shopping_list import (
@@ -139,7 +136,7 @@ class TestModelRepr:
         self, retailer_repo: RetailerPriceRepository
     ) -> None:
         """Test RetailerPrice __repr__ method."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         price = await retailer_repo.create({
             "material_name": "Paint - White",
@@ -148,7 +145,7 @@ class TestModelRepr:
             "unit_price": Decimal("35.99"),
             "unit_of_measure": "gallon",
             "availability_status": "in_stock",
-            "last_updated": datetime.now(timezone.utc),
+            "last_updated": datetime.now(UTC),
         })
         repr_str = repr(price)
         assert repr_str.startswith("<RetailerPrice(material=")

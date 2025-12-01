@@ -1,6 +1,6 @@
 """Tests for RetailerPriceRepository."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import pytest
@@ -23,7 +23,7 @@ class TestRetailerPriceRepository:
         self, retailer_repo: RetailerPriceRepository
     ) -> list[RetailerPrice]:
         """Create sample retailer prices for testing."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         prices = []
 
         # Paint at different retailers with different prices

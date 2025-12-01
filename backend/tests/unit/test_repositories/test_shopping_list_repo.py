@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.project import Project
-from src.models.shopping_list import ShoppingList, ShoppingListItem
+from src.models.shopping_list import ShoppingList
 from src.models.user import UserProfile
 from src.repositories.project import ProjectRepository
 from src.repositories.shopping_list import (
