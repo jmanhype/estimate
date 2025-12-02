@@ -138,13 +138,14 @@ apiClient.interceptors.response.use(
  * Type-safe API error class
  */
 export class ApiError extends Error {
-  constructor(
-    message: string,
-    public statusCode?: number,
-    public details?: unknown,
-  ) {
+  statusCode?: number;
+  details?: unknown;
+
+  constructor(message: string, statusCode?: number, details?: unknown) {
     super(message);
     this.name = 'ApiError';
+    this.statusCode = statusCode;
+    this.details = details;
   }
 }
 

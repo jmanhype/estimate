@@ -4,12 +4,12 @@
  * Provides centralized configuration for API data fetching and caching.
  */
 
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, type DefaultOptions } from '@tanstack/react-query';
 
 /**
  * Default query options for all queries
  */
-const defaultOptions = {
+const defaultOptions: DefaultOptions = {
   queries: {
     // Cache time: how long unused data stays in cache (5 minutes)
     gcTime: 1000 * 60 * 5,
