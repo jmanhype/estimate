@@ -1,206 +1,155 @@
-# EstiMate - AI Materials Estimation Platform
+# EstiMate
 
-AI-powered materials estimation and project planning platform for construction and renovation projects.
+Materials estimation platform for construction and renovation projects. Intended to analyze project photos and specifications to produce quantity estimates, pricing, and timelines.
 
-## Overview
+**Status:** Phase 1 (project foundation) complete. Backend has health check endpoints, configuration management, and test infrastructure. No estimation logic, image analysis, or pricing features are implemented yet. Phase 2 (database models, repository layer) has not started.
 
-EstiMate analyzes project photos and specifications to provide accurate materials estimates, pricing, and timelines using computer vision and AI.
+## What Exists
 
-## Features
+Phase 1 delivered the project skeleton:
 
-- **Photo Analysis**: Upload project photos for AI-powered material detection
-- **Smart Estimation**: Machine learning models for accurate quantity predictions
-- **Price Intelligence**: Real-time pricing from multiple suppliers
-- **Timeline Generation**: Automated project scheduling
-- **Shopping Lists**: Organized materials lists with purchase links
-- **Contractor Matching**: Connect with qualified contractors
+- FastAPI backend with health check endpoints (`/health`, `/`)
+- Pydantic Settings configuration management
+- PostgreSQL 15 + Redis 7 via Docker Compose
+- CI/CD pipeline (GitHub Actions, 5 jobs, all passing)
+- Multi-stage Dockerfiles for backend and frontend
+- React 18 + TypeScript frontend scaffold (no functional pages)
+- Pre-commit hooks (Black, Ruff, Mypy, Bandit)
+- Playwright E2E test infrastructure
+
+## What Does Not Exist Yet
+
+- Photo upload or analysis (Google Cloud Vision integration is a dependency, not implemented)
+- Materials estimation ML models
+- Pricing intelligence or supplier integrations
+- Timeline generation
+- Contractor matching
+- User authentication beyond JWT stubs
+- Any actual project or estimate data models
 
 ## Tech Stack
 
-### Backend
-- **Python 3.11+** with FastAPI
-- **PostgreSQL 15+** for primary database
-- **Redis 7+** for caching and sessions
-- **SQLAlchemy 2.0** for ORM
-- **Pydantic** for validation
-- **Google Cloud Vision** for image analysis
-- **scikit-learn** for ML models
+| Layer | Technology | Notes |
+|-------|-----------|-------|
+| Backend | FastAPI, Python 3.11 | Poetry for dependency management |
+| Database | PostgreSQL 15 | No models or migrations beyond scaffold |
+| Cache | Redis 7 | Configured, not used by application code |
+| Frontend | React 18, TypeScript 5, Vite | Tailwind CSS, React Query |
+| Auth | Supabase client configured | Not integrated |
+| Image Analysis | google-cloud-vision (dependency) | Not implemented |
+| Payments | Stripe (dependency) | Not implemented |
+| CI | GitHub Actions | 5 jobs: backend test, frontend test, security scan, E2E, Docker build |
+| Infra | Docker Compose | Published images: batmanosama/estimate-backend, estimate-frontend |
 
-### Frontend
-- **TypeScript 5.x**
-- **React 18**
-- **Tailwind CSS**
-- **React Query** for state management
-- **Vite** for build tooling
-
-## Quick Start
+## Running Locally
 
 ### Prerequisites
 
 - Python 3.11+
 - Node.js 18+
-- Docker & Docker Compose
-- Poetry (Python dependency manager)
+- Docker and Docker Compose
+- Poetry
 
-### Installation
+### Setup
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/estimate.git
-   cd estimate
-   ```
-
-2. **Start infrastructure services**
-   ```bash
-   docker-compose up -d
-   ```
-
-3. **Backend setup**
-   ```bash
-   cd backend
-   poetry install
-   cp .env.example .env
-   # Edit .env with your configuration
-   poetry run uvicorn src.main:app --reload
-   ```
-
-4. **Frontend setup**
-   ```bash
-   cd frontend
-   npm install
-   cp .env.example .env
-   # Edit .env with your configuration
-   npm run dev
-   ```
-
-5. **Access the application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-
-## Development
-
-### Running Tests
-
-**Backend:**
 ```bash
+git clone https://github.com/jmanhype/estimate.git
+cd estimate
+docker-compose up -d
+
+# Backend
 cd backend
-poetry run pytest tests/unit/ -v --cov=src
-poetry run pytest tests/integration/ -v  # Requires Docker services
-poetry run pytest tests/smoke/ -v
-```
+poetry install
+cp .env.example .env
+poetry run uvicorn src.main:app --reload
 
-**Frontend:**
-```bash
+# Frontend
 cd frontend
-npm test
+npm install
+cp .env.example .env
+npm run dev
 ```
 
-### Code Quality
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:8000 |
+| API docs | http://localhost:8000/docs |
 
-**Backend:**
-```bash
-cd backend
-poetry run black .
-poetry run ruff check .
-poetry run mypy src/
-```
+## Tests
 
-**Frontend:**
-```bash
-cd frontend
-npm run lint
-npm run format
-```
+Phase 1 test suite: 50 tests, 100% coverage of the 41 statements that exist.
 
-### Pre-commit Hooks
-
-```bash
-cd backend
-poetry run pre-commit install
-poetry run pre-commit run --all-files
-```
-
-## Testing with Act (Local CI/CD)
-
-Test GitHub Actions workflows locally before pushing:
+| Category | Count | What They Test |
+|----------|-------|---------------|
+| Unit | 26 | Config loading, health endpoint, main app |
+| Smoke | 22 | Project structure validation |
+| E2E | 2 | Backend health check via Playwright |
+| Integration | 11 | Docker service connectivity (requires running containers) |
 
 ```bash
-# Test pull request workflow
-act pull_request
+# Unit + smoke (no Docker required)
+cd backend && poetry run pytest tests/unit/ tests/smoke/ -v --cov=src
 
-# Test specific job
-act pull_request -j test-backend
+# Integration (requires Docker)
+docker-compose up -d
+cd backend && poetry run pytest tests/integration/ -v
 
-# Test push workflow
-act push
+# Frontend
+cd frontend && npm test
 ```
+
+100% coverage is accurate but misleading -- there are only 41 statements to cover (config, health check, app entrypoint). The number will drop once actual business logic is added.
 
 ## Project Structure
 
 ```
 estimate/
-├── backend/                 # FastAPI backend
-│   ├── src/
-│   │   ├── core/           # Configuration, health checks
-│   │   ├── api/            # API routes and middleware
-│   │   ├── models/         # SQLAlchemy models
-│   │   ├── schemas/        # Pydantic schemas
-│   │   ├── services/       # Business logic
-│   │   └── repositories/   # Data access layer
-│   ├── tests/
-│   │   ├── unit/           # Unit tests
-│   │   ├── integration/    # Integration tests
-│   │   └── smoke/          # Smoke tests
-│   └── pyproject.toml
-├── frontend/               # React frontend
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   └── utils/
-│   └── package.json
-├── specs/                  # Feature specifications
-├── .github/workflows/      # CI/CD workflows
-└── docker-compose.yml      # Local development services
+  backend/
+    src/
+      core/          # config.py (27 statements), health.py (2 statements)
+      main.py        # FastAPI app (12 statements)
+    tests/
+      unit/          # 26 tests
+      smoke/         # 22 tests
+      integration/   # 11 tests
+  frontend/
+    src/
+      components/    # Button, Card, Input, etc. (scaffolds)
+      pages/         # Home, Login, Projects, NotFound (scaffolds)
+    tests/
+      e2e/           # 2 Playwright tests
+  specs/
+    001-materials-estimation/   # Spec Kit feature specification
+  shared/
+    docker-compose.yml
 ```
 
-## Phase 1 Status ✅
+## CI/CD
 
-**Project Foundation - Complete (100% Test Coverage)**
+All 5 GitHub Actions jobs pass:
 
-- [x] Backend project structure
-- [x] Configuration management with Pydantic Settings
-- [x] Health check endpoints
-- [x] Docker Compose infrastructure (PostgreSQL, Redis)
-- [x] Comprehensive test suite (45 tests, 100% coverage)
-- [x] CI/CD pipeline with GitHub Actions
-- [x] Pre-commit hooks and code quality tools
+| Job | Duration | What It Does |
+|-----|----------|-------------|
+| Backend Tests | ~1m | pytest with coverage on Python 3.11 + PostgreSQL 15 + Redis 7 |
+| Frontend Tests | ~23s | Vitest, TypeScript type-check, ESLint, build |
+| Security Scan | ~15s | Trivy vulnerability scanner, Bandit |
+| E2E Tests | ~1m23s | Playwright against running backend |
+| Build Docker Images | ~1m51s | Multi-stage builds, push to Docker Hub |
 
-### Test Coverage: 100%
-```
-Total: 28/28 statements
-- Unit Tests: 25 tests
-- Smoke Tests: 20 tests
-- Integration Tests: 11 tests
-```
+## Planned Features (Not Implemented)
 
-## Contributing
+Per the spec in `specs/001-materials-estimation/`:
 
-1. Create a feature branch from `main`
-2. Make your changes with tests
-3. Ensure all tests pass and coverage is 100%
-4. Test locally with `act` before pushing
-5. Submit a pull request
+1. Photo upload and AI-powered material detection
+2. Quantity estimation via ML models
+3. Supplier price lookups
+4. Project timeline generation
+5. Shopping list export
+6. Contractor matching
+
+None of these are built. The spec exists as a planning artifact.
 
 ## License
 
-MIT License - see LICENSE file for details
-
-## Support
-
-For questions or issues, please open a GitHub issue.
-
----
-
-Built with [Claude Code](https://claude.com/claude-code) using the [Spec Kit](https://github.com/jmanhype/speckit) workflow framework.
+MIT. See [LICENSE](LICENSE).
